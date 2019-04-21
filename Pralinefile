@@ -1,0 +1,8 @@
+organization: dansandu
+artifact: ballotin
+version: 1.0.0
+dependencies:
+- organization: catchorg
+  artifact: catch
+  version: 2.+5.+0
+  scope: test
