@@ -30,6 +30,6 @@ struct type_pack {
     using as_variant_type = std::variant<Types...>;
 
     template<typename T>
-    static constexpr auto contains = (... || std::is_same_v<T, Types>);
+    static constexpr bool contains = (... || std::is_same_v<T, Types>);
 };
 }
