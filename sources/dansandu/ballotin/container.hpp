@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <map>
+#include <optional>
 #include <ostream>
 #include <vector>
 
@@ -45,6 +46,14 @@ std::ostream& operator<<(std::ostream& stream, const std::map<K, V>& container) 
         addComma = true;
     }
     return stream << "}";
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& stream, const std::optional<T>& optional) {
+    stream << "Optional(";
+    if (optional)
+        stream << *optional;
+    return stream << ")";
 }
 
 }
