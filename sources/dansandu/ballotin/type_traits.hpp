@@ -5,6 +5,10 @@
 
 namespace dansandu::ballotin::type_traits {
 
+struct general_case {};
+
+struct best_case : general_case {};
+
 struct Uncopyable {
     Uncopyable() = default;
 
