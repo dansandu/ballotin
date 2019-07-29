@@ -5,6 +5,10 @@
 
 namespace dansandu::ballotin::type_traits {
 
+struct general_case {};
+
+struct best_case : general_case {};
+
 struct Uncopyable {
     Uncopyable() = default;
 
@@ -30,6 +34,6 @@ struct type_pack {
     using as_variant_type = std::variant<Types...>;
 
     template<typename T>
-    static constexpr auto contains = (... || std::is_same_v<T, Types>);
+    static constexpr bool contains = (... || std::is_same_v<T, Types>);
 };
 }
