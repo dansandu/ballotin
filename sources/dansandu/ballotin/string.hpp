@@ -18,18 +18,10 @@ auto join(const I& iterable, std::string_view separator) {
     return result;
 }
 
-inline auto formatWork(std::ostream&) {}
-
-template<typename A, typename... AA>
-auto formatWork(std::ostream& buffer, A&& argument, AA&&... arguments) {
-    buffer << std::forward<A>(argument);
-    formatWork(buffer, std::forward<AA>(arguments)...);
-}
-
-template<typename... AA>
-auto format(AA&&... arguments) {
+template<typename... Arguments>
+auto format(Arguments&&... arguments) {
     std::stringstream buffer;
-    formatWork(buffer, std::forward<AA>(arguments)...);
+    (buffer << ... << arguments);
     return buffer.str();
 }
 
