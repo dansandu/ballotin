@@ -6,9 +6,11 @@
 #include <string>
 #include <string_view>
 
-namespace dansandu::ballotin::time {
+namespace dansandu::ballotin::time
+{
 
-std::string getDatetimeAsString(const char* format) {
+std::string getDatetimeAsString(const char* format)
+{
     auto time = std::time(nullptr);
     auto localtime = *std::localtime(&time);
     std::ostringstream stream;

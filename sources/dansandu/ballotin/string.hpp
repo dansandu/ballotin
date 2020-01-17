@@ -6,10 +6,12 @@
 #include <string_view>
 #include <vector>
 
-namespace dansandu::ballotin::string {
+namespace dansandu::ballotin::string
+{
 
 template<typename I>
-auto join(const I& iterable, std::string_view separator) {
+auto join(const I& iterable, std::string_view separator)
+{
     std::stringstream ss;
     for (const auto& element : iterable)
         ss << element << separator;
@@ -19,7 +21,8 @@ auto join(const I& iterable, std::string_view separator) {
 }
 
 template<typename... Arguments>
-auto format(Arguments&&... arguments) {
+auto format(Arguments&&... arguments)
+{
     std::stringstream buffer;
     (buffer << ... << arguments);
     return buffer.str();

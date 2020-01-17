@@ -3,13 +3,19 @@
 #include <type_traits>
 #include <variant>
 
-namespace dansandu::ballotin::type_traits {
+namespace dansandu::ballotin::type_traits
+{
 
-struct general_case {};
+struct general_case
+{
+};
 
-struct best_case : general_case {};
+struct best_case : general_case
+{
+};
 
-struct Uncopyable {
+struct Uncopyable
+{
     Uncopyable() = default;
 
     Uncopyable(Uncopyable&&) = default;
@@ -21,7 +27,8 @@ struct Uncopyable {
     Uncopyable& operator=(const Uncopyable&) = delete;
 };
 
-struct Immovable {
+struct Immovable
+{
     Immovable() = default;
 
     Immovable(Immovable&&) = delete;
@@ -30,7 +37,8 @@ struct Immovable {
 };
 
 template<typename... Types>
-struct type_pack {
+struct type_pack
+{
     using as_variant_type = std::variant<Types...>;
 
     template<typename T>
