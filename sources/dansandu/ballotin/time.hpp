@@ -6,6 +6,6 @@
 namespace dansandu::ballotin::time
 {
 
-std::string getDatetimeAsString(const char* format);
+PRALINE_EXPORT std::string getDatetimeAsString(const char* format);
 
 }

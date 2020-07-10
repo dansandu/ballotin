@@ -28,8 +28,8 @@ auto format(Arguments&&... arguments)
     return buffer.str();
 }
 
-std::vector<std::string> split(std::string_view string, std::string_view delimiter);
+PRALINE_EXPORT std::vector<std::string> split(std::string_view string, std::string_view delimiter);
 
-std::string trim(std::string string);
+PRALINE_EXPORT std::string trim(std::string string);
 
 }
