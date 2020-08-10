@@ -6,48 +6,36 @@
 #include <string>
 #include <vector>
 
-using dansandu::ballotin::container::setInsert;
-using dansandu::ballotin::container::setUnion;
+using dansandu::ballotin::container::contains;
+using dansandu::ballotin::container::uniquePushBack;
 using dansandu::ballotin::container::operator<<;
 
 TEST_CASE("Container")
 {
-    SECTION("union")
+    SECTION("contains")
     {
-        REQUIRE(setUnion<int>({1, 3, 5}, {0, 1, 6}) == std::vector<int>{{0, 1, 3, 5, 6}});
+        auto container = std::vector<int>{{3, 5, 7, 10}};
 
-        REQUIRE(setUnion<int>({}, {2, 6}) == std::vector<int>{{2, 6}});
+        REQUIRE(contains(container, 5));
 
-        REQUIRE(setUnion<int>({1, 2}, {1, 2}) == std::vector<int>{{1, 2}});
-
-        REQUIRE(setUnion<int>({}, {}) == std::vector<int>{});
+        REQUIRE(!contains(container, 8));
     }
 
-    SECTION("insertion into set")
+    SECTION("unique push back")
     {
         auto container = std::vector<int>{{1, 3, 5, 7}};
 
-        SECTION("front")
+        SECTION("unique")
         {
-            setInsert(container, 0);
-            REQUIRE(container == std::vector<int>{{0, 1, 3, 5, 7}});
-        }
+            uniquePushBack(container, 0);
 
-        SECTION("middle")
-        {
-            setInsert(container, 4);
-            REQUIRE(container == std::vector<int>{{1, 3, 4, 5, 7}});
-        }
-
-        SECTION("back")
-        {
-            setInsert(container, 8);
-            REQUIRE(container == std::vector<int>{{1, 3, 5, 7, 8}});
+            REQUIRE(container == std::vector<int>{{1, 3, 5, 7, 0}});
         }
 
         SECTION("duplicate")
         {
-            setInsert(container, 7);
+            uniquePushBack(container, 3);
+
             REQUIRE(container == std::vector<int>{{1, 3, 5, 7}});
         }
     }

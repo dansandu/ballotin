@@ -9,20 +9,19 @@
 namespace dansandu::ballotin::container
 {
 
-template<typename T>
-std::vector<T> setUnion(const std::vector<T>& left, const std::vector<T>& right)
+template<typename T, typename E>
+bool contains(std::vector<T>& container, const E& element)
 {
-    auto result = std::vector<T>{};
-    std::set_union(left.cbegin(), left.cend(), right.cbegin(), right.cend(), std::back_inserter(result));
-    return result;
+    return std::find(container.cbegin(), container.cend(), element) != container.cend();
 }
 
 template<typename T, typename E>
-void setInsert(std::vector<T>& container, E&& element)
+void uniquePushBack(std::vector<T>& container, E&& element)
 {
-    auto position = std::lower_bound(container.begin(), container.end(), element);
-    if (position == container.end() || element != *position)
-        container.insert(position, std::forward<E>(element));
+    if (auto position = std::find(container.cbegin(), container.cend(), element); position == container.cend())
+    {
+        container.push_back(std::forward<E>(element));
+    }
 }
 
 template<typename T>
