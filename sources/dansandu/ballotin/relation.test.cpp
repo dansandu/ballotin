@@ -1,9 +1,9 @@
 #include "catchorg/catch/catch.hpp"
 #include "dansandu/ballotin/relation.hpp"
 
-using dansandu::ballotin::relation::total_order;
+using dansandu::ballotin::relation::TotalOrder;
 
-class Duck : public total_order<Duck>
+class Duck : public TotalOrder<Duck>
 {
     friend bool operator<(const Duck& left, const Duck& right)
     {

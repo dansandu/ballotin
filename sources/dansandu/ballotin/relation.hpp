@@ -4,7 +4,7 @@ namespace dansandu::ballotin::relation
 {
 
 template<typename T>
-struct total_order
+struct TotalOrder
 {
     friend bool operator>(const T& left, const T& right)
     {
