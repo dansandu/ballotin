@@ -10,7 +10,7 @@ namespace dansandu::ballotin::container
 {
 
 template<typename T, typename E>
-bool contains(std::vector<T>& container, const E& element)
+bool contains(const std::vector<T>& container, const E& element)
 {
     return std::find(container.cbegin(), container.cend(), element) != container.cend();
 }
