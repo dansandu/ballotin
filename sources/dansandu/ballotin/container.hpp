@@ -9,6 +9,14 @@
 namespace dansandu::ballotin::container
 {
 
+template<typename T>
+auto pop(std::vector<T>& stack)
+{
+    auto value = std::move(stack.back());
+    stack.pop_back();
+    return value;
+}
+
 template<typename T, typename E>
 bool contains(const std::vector<T>& container, const E& element)
 {

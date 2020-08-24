@@ -7,11 +7,23 @@
 #include <vector>
 
 using dansandu::ballotin::container::contains;
+using dansandu::ballotin::container::pop;
 using dansandu::ballotin::container::uniquePushBack;
 using dansandu::ballotin::container::operator<<;
 
 TEST_CASE("Container")
 {
+    SECTION("pop")
+    {
+        auto stack = std::vector<int>{{7, 11, 13}};
+
+        REQUIRE(pop(stack) == 13);
+
+        REQUIRE(pop(stack) == 11);
+
+        REQUIRE(pop(stack) == 7);
+    }
+
     SECTION("contains")
     {
         auto container = std::vector<int>{{3, 5, 7, 10}};
