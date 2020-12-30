@@ -37,11 +37,12 @@ struct Immovable
 };
 
 template<typename... Types>
-struct type_pack
+struct TypePack
 {
-    using as_variant_type = std::variant<Types...>;
+    using VariantType = std::variant<Types...>;
 
     template<typename T>
     static constexpr bool contains = (... || std::is_same_v<T, Types>);
 };
+
 }

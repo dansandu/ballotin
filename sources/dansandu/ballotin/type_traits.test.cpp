@@ -1,11 +1,11 @@
 #include "catchorg/catch/catch.hpp"
 #include "dansandu/ballotin/type_traits.hpp"
 
-using dansandu::ballotin::type_traits::type_pack;
+using dansandu::ballotin::type_traits::TypePack;
 
 TEST_CASE("TypeTraits")
 {
-    REQUIRE(type_pack<int, float, double>::contains<int>);
+    REQUIRE(TypePack<int, float, double>::contains<int>);
 
-    REQUIRE(!type_pack<int, float, double>::contains<char>);
+    REQUIRE(!TypePack<int, float, double>::contains<char>);
 }
