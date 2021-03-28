@@ -10,31 +10,41 @@
 namespace dansandu::ballotin::string
 {
 
-std::vector<std::string> split(std::string_view string, std::string_view delimiter)
+std::vector<std::string> split(const std::string_view string, const std::string_view delimiter)
 {
     if (delimiter.empty())
-        THROW(std::invalid_argument, "delimiter cannot be empty");
-    auto result = std::vector<std::string>{};
-    auto subStringEnd = string.cbegin(), subStringBegin = subStringEnd;
-    while ((subStringEnd = std::search(subStringBegin, string.cend(), delimiter.cbegin(), delimiter.cend())) !=
-           string.cend())
     {
-        if (subStringBegin != subStringEnd)
-            result.emplace_back(subStringBegin, subStringEnd);
-        subStringBegin = subStringEnd + delimiter.size();
+        THROW(std::invalid_argument, "delimiter cannot be empty");
     }
-    if (subStringBegin != subStringEnd)
-        result.emplace_back(subStringBegin, subStringEnd);
-    return result;
+    auto tokens = std::vector<std::string>{};
+    auto tokenBegin = string.cbegin();
+    auto tokenEnd = tokenBegin;
+    while ((tokenEnd = std::search(tokenBegin, string.cend(), delimiter.cbegin(), delimiter.cend())) != string.cend())
+    {
+        if (tokenBegin != tokenEnd)
+        {
+            tokens.emplace_back(tokenBegin, tokenEnd);
+        }
+        tokenBegin = tokenEnd + delimiter.size();
+    }
+    if (tokenBegin != tokenEnd)
+    {
+        tokens.emplace_back(tokenBegin, tokenEnd);
+    }
+    return tokens;
 }
 
-std::string trim(std::string string)
+std::string trim(const std::string_view string)
 {
-    auto notWhiteSpace = [](auto c) { return !std::isspace(c); };
-    string.erase(string.begin(), std::find_if(string.begin(), string.end(), notWhiteSpace));
-    auto rightTrimSize = std::find_if(string.rbegin(), string.rend(), notWhiteSpace) - string.rbegin();
-    string.erase(string.end() - rightTrimSize, string.end());
-    return string;
+    auto begin = string.begin();
+    while (begin < string.end() && std::isspace(*begin))
+        ++begin;
+
+    auto end = string.end() - 1;
+    while (end > begin && std::isspace(*end))
+        --end;
+
+    return {begin, end + 1};
 }
 
 }

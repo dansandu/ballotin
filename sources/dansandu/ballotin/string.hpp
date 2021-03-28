@@ -1,6 +1,5 @@
 #pragma once
 
-#include <algorithm>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -9,13 +8,15 @@
 namespace dansandu::ballotin::string
 {
 
-template<typename I>
-auto join(const I& iterable, std::string_view separator)
+template<typename Iterable>
+auto join(const Iterable& iterable, const std::string_view separator)
 {
-    std::stringstream ss;
+    auto stream = std::stringstream{};
     for (const auto& element : iterable)
-        ss << element << separator;
-    auto result = ss.str();
+    {
+        stream << element << separator;
+    }
+    auto result = stream.str();
     result.erase(result.end() - std::min(separator.size(), result.size()), result.end());
     return result;
 }
@@ -23,13 +24,13 @@ auto join(const I& iterable, std::string_view separator)
 template<typename... Arguments>
 auto format(Arguments&&... arguments)
 {
-    std::stringstream buffer;
-    (buffer << ... << arguments);
-    return buffer.str();
+    auto stream = std::stringstream{};
+    (stream << ... << arguments);
+    return stream.str();
 }
 
-PRALINE_EXPORT std::vector<std::string> split(std::string_view string, std::string_view delimiter);
+PRALINE_EXPORT std::vector<std::string> split(const std::string_view string, const std::string_view delimiter);
 
-PRALINE_EXPORT std::string trim(std::string string);
+PRALINE_EXPORT std::string trim(const std::string_view string);
 
 }
