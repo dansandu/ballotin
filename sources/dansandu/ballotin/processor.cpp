@@ -132,9 +132,10 @@ void Processor::loop()
             }
         }
 
-        if (!paused & !done)
+        if (!paused & !(done || (done = process_->done())))
         {
-            paused = done = !process_->tick();
+            paused = done;
+            process_->tick();
         }
     }
 }

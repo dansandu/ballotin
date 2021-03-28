@@ -11,7 +11,8 @@
 namespace dansandu::ballotin::processor
 {
 
-class IProcess : private dansandu::ballotin::type_traits::Uncopyable, private dansandu::ballotin::type_traits::Immovable
+class PRALINE_EXPORT IProcess : private dansandu::ballotin::type_traits::Uncopyable,
+                                private dansandu::ballotin::type_traits::Immovable
 {
 public:
     virtual ~IProcess()
@@ -20,11 +21,13 @@ public:
 
     virtual void reset() = 0;
 
-    virtual bool tick() = 0;
+    virtual void tick() = 0;
+
+    virtual bool done() const = 0;
 };
 
-class Processor : private dansandu::ballotin::type_traits::Uncopyable,
-                  private dansandu::ballotin::type_traits::Immovable
+class PRALINE_EXPORT Processor : private dansandu::ballotin::type_traits::Uncopyable,
+                                 private dansandu::ballotin::type_traits::Immovable
 {
 public:
     Processor(std::unique_ptr<IProcess> process);

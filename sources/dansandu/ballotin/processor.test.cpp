@@ -20,16 +20,20 @@ public:
         integer_ = 0;
     }
 
-    bool tick() override
+    void tick() override
     {
-        if (integer_ >= 5)
+        if (done())
         {
             THROW(std::runtime_error, "processor should stop calling tick after exiting with false unless reset");
         }
 
         generated_.push_back(integer_++);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        return integer_ < 5;
+    }
+
+    bool done() const override
+    {
+        return integer_ >= 5;
     }
 
     const std::vector<int>& generated() const
