@@ -9,4 +9,6 @@ namespace dansandu::ballotin::file_system
 
 PRALINE_EXPORT void writeBinaryFile(const std::string& path, const std::vector<uint8_t>& bytes);
 
+PRALINE_EXPORT std::vector<uint8_t> readBinaryFile(const std::string& path);
+
 }

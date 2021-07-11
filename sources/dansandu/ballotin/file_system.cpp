@@ -16,10 +16,29 @@ void writeBinaryFile(const std::string& path, const std::vector<uint8_t>& bytes)
     {
         if (!(file << byte))
         {
-            THROW(std::runtime_error, "could not write bytes to file");
+            THROW(std::runtime_error, "could not write bytes to file '", path, "'");
         }
     }
     file.close();
+}
+
+std::vector<uint8_t> readBinaryFile(const std::string& path)
+{
+    auto bytes = std::vector<uint8_t>{};
+
+    auto file = std::ifstream{path, std::ios_base::binary};
+    if (!(file >> std::noskipws))
+    {
+        THROW(std::runtime_error, "file '", path, "' does not exist");
+    }
+
+    auto byte = uint8_t{};
+    while (file >> byte)
+    {
+        bytes.push_back(byte);
+    }
+
+    return bytes;
 }
 
 }
