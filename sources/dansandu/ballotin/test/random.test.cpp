@@ -9,42 +9,56 @@ TEST_CASE("random")
 {
     SECTION("PredictableBitGenerator")
     {
-        auto generator = PredictableBitGenerator{};
-
-        SECTION("samples")
+        SECTION("seedless")
         {
-            auto expected = std::vector<unsigned>{{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1}};
-            auto actual = std::vector<unsigned>{};
-
-            for (auto i = 0U; i < expected.size(); ++i)
+            SECTION("samples")
             {
-                actual.push_back(generator());
+                auto generator = PredictableBitGenerator{};
+
+                REQUIRE(generator.min() == 0U);
+
+                REQUIRE(generator.max() == 255U);
+
+                const auto expected = std::vector<unsigned>{{0, 1, 2, 3, 4, 5, 6, 7}};
+
+                auto actual = std::vector<unsigned>{};
+                for (auto i = 0U; i < expected.size(); ++i)
+                {
+                    actual.push_back(generator());
+                }
+
+                REQUIRE(expected == actual);
             }
 
-            REQUIRE(expected == actual);
-        }
+            SECTION("shuffle")
+            {
+                const auto samples = 200000;
 
-        SECTION("predictable shuffle")
-        {
-            auto ordered = std::vector<int>{{1, 2, 3, 4, 5, 6}};
-            auto shuffled = ordered;
-            std::shuffle(shuffled.begin(), shuffled.end(), generator);
-            auto expected = shuffled;
+                auto ordered = std::vector<int>{};
+                for (auto index = 0; index < samples; ++index)
+                {
+                    ordered.push_back(index);
+                }
 
-            shuffled = ordered;
-            std::shuffle(shuffled.begin(), shuffled.end(), generator);
+                const auto seed = 0U;
 
-            REQUIRE(expected == shuffled);
+                auto generator = PredictableBitGenerator{seed};
+                auto shuffled = ordered;
+                std::shuffle(shuffled.begin(), shuffled.end(), generator);
 
-            shuffled = ordered;
-            std::shuffle(shuffled.begin(), shuffled.end(), generator);
+                REQUIRE(shuffled.size() == ordered.size());
 
-            REQUIRE(expected == shuffled);
+                REQUIRE(std::is_permutation(shuffled.cbegin(), shuffled.cend(), ordered.cbegin(), ordered.cend()));
 
-            shuffled = ordered;
-            std::shuffle(shuffled.begin(), shuffled.end(), generator);
+                const auto expected = shuffled;
 
-            REQUIRE(expected == shuffled);
+                generator.seed(seed);
+
+                shuffled = ordered;
+                std::shuffle(shuffled.begin(), shuffled.end(), generator);
+
+                REQUIRE(expected == shuffled);
+            }
         }
     }
 }

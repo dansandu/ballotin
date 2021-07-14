@@ -8,8 +8,13 @@ class PredictableBitGenerator
 public:
     using result_type = unsigned;
 
-    PredictableBitGenerator() : index_{0U}
+    PredictableBitGenerator(result_type seed = 0U) : index_{seed % (max() + 1U)}
     {
+    }
+
+    void seed(result_type seed)
+    {
+        index_ = seed % (max() + 1U);
     }
 
     result_type operator()()
@@ -26,7 +31,7 @@ public:
 
     constexpr static result_type max()
     {
-        return 9U;
+        return 255U;
     }
 
 private:
