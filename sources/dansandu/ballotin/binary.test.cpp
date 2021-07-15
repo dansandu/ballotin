@@ -139,6 +139,19 @@ TEST_CASE("binary")
             REQUIRE(bitsCount == expectedBitsCount);
         }
 
+        SECTION("large append")
+        {
+            bytes_type output = {0b00000111};
+            
+            auto bitsCount = 3;
+
+            pushBits(output, bitsCount, 0b11111011110111011010, 20);
+
+            const bytes_type expectedOutput = {0b11010111, 0b11101110, 0b01111101};
+
+            REQUIRE(output == expectedOutput);
+        }
+
         SECTION("byte overflow")
         {
             bytes_type output = {0b00110100, 0b00000000, 0b00000000};
