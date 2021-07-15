@@ -1,9 +1,9 @@
 #include "catchorg/catch/catch.hpp"
-#include "dansandu/ballotin/test/random.hpp"
+#include "dansandu/ballotin/random.hpp"
 
 #include <algorithm>
 
-using dansandu::ballotin::test::random::PredictableBitGenerator;
+using dansandu::ballotin::random::PredictableBitGenerator;
 
 TEST_CASE("random")
 {

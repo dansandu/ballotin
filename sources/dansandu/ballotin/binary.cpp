@@ -1,4 +1,5 @@
 #include "dansandu/ballotin/binary.hpp"
+#include "dansandu/ballotin/exception.hpp"
 
 #include <cstdint>
 #include <vector>
@@ -10,12 +11,27 @@ void pushBits(std::vector<uint8_t>& bytes, int& bitsCount, const unsigned bitsTo
 {
     constexpr auto bitsPerByte = 8;
 
+    const auto bytesCount = bitsCount / bitsPerByte + (0 < bitsCount % bitsPerByte);
+
+    if (static_cast<int>(bytes.size()) < bytesCount)
+    {
+        THROW(std::invalid_argument, "invalid bit count ", bitsCount,
+              " -- bit count cannot be larger than current bytes size", bytes.size());
+    }
+
+    while (static_cast<int>(bytes.size()) > bytesCount)
+    {
+        bytes.pop_back();
+    }
+
+    const auto bitsCapacity = bytesCount * bitsPerByte;
+
     auto remainingBits = bitsToAppend;
     auto remainingBitsCount = bitsToAppendCount;
 
     while (remainingBitsCount > 0)
     {
-        const auto freeBitsCount = static_cast<int>(bytes.size()) * bitsPerByte - bitsCount;
+        const auto freeBitsCount = bitsCapacity - bitsCount;
 
         if (const auto implaceBitsCount = std::min(freeBitsCount, remainingBitsCount); implaceBitsCount > 0)
         {

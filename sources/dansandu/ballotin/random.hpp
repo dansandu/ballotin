@@ -1,6 +1,6 @@
 #pragma once
 
-namespace dansandu::ballotin::test::random
+namespace dansandu::ballotin::random
 {
 
 class PredictableBitGenerator
