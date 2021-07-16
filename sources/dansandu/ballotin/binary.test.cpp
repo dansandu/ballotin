@@ -142,7 +142,7 @@ TEST_CASE("binary")
         SECTION("large append")
         {
             bytes_type output = {0b00000111};
-            
+
             auto bitsCount = 3;
 
             pushBits(output, bitsCount, 0b11111011110111011010, 20);

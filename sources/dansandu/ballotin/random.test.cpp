@@ -32,7 +32,7 @@ TEST_CASE("random")
 
             SECTION("shuffle")
             {
-                const auto samples = 200000;
+                const auto samples = 50000;
 
                 auto ordered = std::vector<int>{};
                 for (auto index = 0; index < samples; ++index)
@@ -59,6 +59,25 @@ TEST_CASE("random")
 
                 REQUIRE(expected == shuffled);
             }
+        }
+
+        SECTION("with seed")
+        {
+            auto generator = PredictableBitGenerator{252U};
+
+            REQUIRE(generator.min() == 0U);
+
+            REQUIRE(generator.max() == 255U);
+
+            const auto expected = std::vector<unsigned>{{252, 253, 254, 255, 0, 1, 2}};
+
+            auto actual = std::vector<unsigned>{};
+            for (auto i = 0U; i < expected.size(); ++i)
+            {
+                actual.push_back(generator());
+            }
+
+            REQUIRE(expected == actual);
         }
     }
 }
