@@ -14,6 +14,7 @@ namespace dansandu::ballotin::logging
 
 enum class Level
 {
+    none,
     error,
     warn,
     info,
@@ -22,7 +23,10 @@ enum class Level
 
 const char* levelToString(const Level level);
 
-int levelToInteger(const Level level);
+constexpr int levelToInteger(const Level level)
+{
+    return static_cast<int>(level);
+}
 
 struct LogEntry
 {
@@ -41,9 +45,13 @@ public:
 
     static Logger& globalInstance();
 
-    Logger(const Level level = Level::warn, const bool defaultStandardErrorHandler = true);
+    Logger(const Level level = Level::debug, const bool defaultStandardErrorHandler = true);
 
-    void addHandler(const std::string name, const Level level, HandlerType handler);
+    void addHandler(std::string name, const Level level, HandlerType handler);
+
+    void removeHandler(const std::string_view name);
+
+    void setLevel(const Level level);
 
     Level getLevel() const;
 
@@ -82,20 +90,30 @@ private:
     mutable std::mutex mutex_;
 };
 
+template<Level level, int loggingLevel, typename... Arguments>
+void log(const Logger& logger, const char* const function, const char* const file, const int line,
+         Arguments&&... arguments)
+{
+    if constexpr (levelToInteger(level) <= loggingLevel)
+    {
+        logger.log(function, file, line, level, std::forward<Arguments>(arguments)...);
+    }
+}
+
 }
 
 #define LOG_ERROR(...)                                                                                                 \
-    dansandu::ballotin::logging::Logger::globalInstance().log(__func__, __FILE__, __LINE__,                            \
-                                                              dansandu::ballotin::logging::Level::error, __VA_ARGS__);
+    dansandu::ballotin::logging::log<dansandu::ballotin::logging::Level::error, PRALINE_LOGGING_LEVEL>(                \
+        Logger::globalInstance(), __func__, __FILE__, __LINE__, __VA_ARGS__);
 
 #define LOG_WARN(...)                                                                                                  \
-    dansandu::ballotin::logging::Logger::globalInstance().log(__func__, __FILE__, __LINE__,                            \
-                                                              dansandu::ballotin::logging::Level::warn, __VA_ARGS__);
+    dansandu::ballotin::logging::log<dansandu::ballotin::logging::Level::warn, PRALINE_LOGGING_LEVEL>(                 \
+        Logger::globalInstance(), __func__, __FILE__, __LINE__, __VA_ARGS__);
 
 #define LOG_INFO(...)                                                                                                  \
-    dansandu::ballotin::logging::Logger::globalInstance().log(__func__, __FILE__, __LINE__,                            \
-                                                              dansandu::ballotin::logging::Level::info, __VA_ARGS__);
+    dansandu::ballotin::logging::log<dansandu::ballotin::logging::Level::info, PRALINE_LOGGING_LEVEL>(                 \
+        Logger::globalInstance(), __func__, __FILE__, __LINE__, __VA_ARGS__);
 
 #define LOG_DEBUG(...)                                                                                                 \
-    dansandu::ballotin::logging::Logger::globalInstance().log(__func__, __FILE__, __LINE__,                            \
-                                                              dansandu::ballotin::logging::Level::debug, __VA_ARGS__);
+    dansandu::ballotin::logging::log<dansandu::ballotin::logging::Level::debug, PRALINE_LOGGING_LEVEL>(                \
+        Logger::globalInstance(), __func__, __FILE__, __LINE__, __VA_ARGS__);

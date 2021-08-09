@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <iostream>
-#include <type_traits>
 
 using dansandu::ballotin::date_time::getDateTime;
 using dansandu::ballotin::string::format;
@@ -14,13 +13,8 @@ namespace dansandu::ballotin::logging
 
 const char* levelToString(const Level level)
 {
-    static const char* const levels[] = {"ERROR", "WARN", "INFO", "DEBUG"};
+    static const char* const levels[] = {"NONE", "ERROR", "WARN", "INFO", "DEBUG"};
     return levels[levelToInteger(level)];
-}
-
-int levelToInteger(const Level level)
-{
-    return static_cast<std::underlying_type_t<Level>>(level);
 }
 
 Logger& Logger::globalInstance()
@@ -33,11 +27,11 @@ Logger::Logger(const Level level, const bool defaultStandardErrorHandler) : leve
 {
     if (defaultStandardErrorHandler)
     {
-        addHandler("default", Level::error, standardErrorHandler);
+        addHandler("default", Level::warn, standardErrorHandler);
     }
 }
 
-void Logger::addHandler(const std::string name, const Level level, HandlerType handler)
+void Logger::addHandler(std::string name, const Level level, HandlerType handler)
 {
     const auto lock = std::lock_guard<std::mutex>{mutex_};
     if (std::find_if(handlers_.cbegin(), handlers_.cend(),
@@ -49,6 +43,22 @@ void Logger::addHandler(const std::string name, const Level level, HandlerType h
     {
         THROW(std::logic_error, "the handler named '", name, "' is already registered");
     }
+}
+
+void Logger::removeHandler(const std::string_view name)
+{
+    const auto lock = std::lock_guard<std::mutex>{mutex_};
+    if (const auto position = std::find_if(handlers_.cbegin(), handlers_.cend(),
+                                           [name](const auto& handler) { return handler.name == name; });
+        position != handlers_.cend())
+    {
+        handlers_.erase(position);
+    }
+}
+
+void Logger::setLevel(const Level level)
+{
+    level_.store(level);
 }
 
 Level Logger::getLevel() const
