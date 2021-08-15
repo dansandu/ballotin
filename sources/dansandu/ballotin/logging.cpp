@@ -1,4 +1,5 @@
 #include "dansandu/ballotin/logging.hpp"
+#include "dansandu/ballotin/date_time.hpp"
 #include "dansandu/ballotin/exception.hpp"
 #include "dansandu/ballotin/string.hpp"
 
@@ -6,16 +7,9 @@
 #include <iostream>
 
 using dansandu::ballotin::date_time::getDateTime;
-using dansandu::ballotin::string::format;
 
 namespace dansandu::ballotin::logging
 {
-
-const char* levelToString(const Level level)
-{
-    static const char* const levels[] = {"NONE", "ERROR", "WARN", "INFO", "DEBUG"};
-    return levels[levelToInteger(level)];
-}
 
 Logger& Logger::globalInstance()
 {
@@ -23,15 +17,11 @@ Logger& Logger::globalInstance()
     return logger;
 }
 
-Logger::Logger(const Level level, const bool defaultStandardErrorHandler) : level_{level}
+Logger::Logger() : level_{Level::debug}
 {
-    if (defaultStandardErrorHandler)
-    {
-        addHandler("default", Level::warn, standardErrorHandler);
-    }
 }
 
-void Logger::addHandler(std::string name, const Level level, HandlerType handler)
+void Logger::addHandler(std::string name, const Level level, std::function<void(const LogEntry&)> handler)
 {
     const auto lock = std::lock_guard<std::mutex>{mutex_};
     if (std::find_if(handlers_.cbegin(), handlers_.cend(),
@@ -66,21 +56,74 @@ Level Logger::getLevel() const
     return level_.load();
 }
 
-void Logger::standardErrorHandler(const LogEntry& logEntry)
+void Logger::log(const char* const function, const char* const file, const int line, const Level level,
+                 const std::string_view message) const
 {
-    std::cerr << logEntry.timestamp << " " << levelToString(logEntry.level) << " " << logEntry.function << " "
-              << logEntry.file << ":" << logEntry.line << " " << logEntry.message << std::endl;
+    if (level <= getLevel())
+    {
+        const auto logEntry = LogEntry{.timestamp = getDateTime(),
+                                       .level = level,
+                                       .function = function,
+                                       .file = file,
+                                       .line = line,
+                                       .messageSupplier = [message]() { return message; }};
+
+        const auto lock = std::lock_guard<std::mutex>{mutex_};
+        for (const auto& handler : handlers_)
+        {
+            if (logEntry.level <= handler.level)
+            {
+                handler.callback(logEntry);
+            }
+        }
+    }
 }
 
-void Logger::log(const LogEntry& logEntry) const
+void Logger::log(const char* const function, const char* const file, const int line, const Level level,
+                 const std::function<std::string()>& messageSupplier) const
 {
-    const auto lock = std::lock_guard<std::mutex>{mutex_};
-    for (const auto& handler : handlers_)
+    if (level <= getLevel())
     {
-        if (levelToInteger(logEntry.level) <= levelToInteger(handler.level))
+        const auto logEntry =
+            LogEntry{.timestamp = getDateTime(),
+                     .level = level,
+                     .function = function,
+                     .file = file,
+                     .line = line,
+                     .messageSupplier = [&messageSupplier, cached = false, message = std::string{}]() mutable {
+                         if (cached)
+                         {
+                             return std::string_view{message};
+                         }
+
+                         message = messageSupplier();
+                         cached = true;
+
+                         return std::string_view{message};
+                     }};
+
+        const auto lock = std::lock_guard<std::mutex>{mutex_};
+        for (const auto& handler : handlers_)
         {
-            handler.callback(logEntry);
+            if (logEntry.level <= handler.level)
+            {
+                handler.callback(logEntry);
+            }
         }
+    }
+}
+
+void standardOutputHandler(const LogEntry& logEntry)
+{
+    if (logEntry.level <= Level::warn)
+    {
+        std::cerr << logEntry.timestamp << " " << levelToString(logEntry.level) << " " << logEntry.function << " "
+                  << logEntry.file << ":" << logEntry.line << " " << logEntry.messageSupplier() << std::endl;
+    }
+    else
+    {
+        std::cout << logEntry.timestamp << " " << levelToString(logEntry.level) << " " << logEntry.function << " "
+                  << logEntry.file << ":" << logEntry.line << " " << logEntry.messageSupplier() << std::endl;
     }
 }
 
