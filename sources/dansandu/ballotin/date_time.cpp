@@ -12,7 +12,12 @@ std::string getDateTime()
     time(&t);
 
     auto tt = tm{};
+
+#ifdef _WIN32
     gmtime_s(&tt, &t);
+#else
+    gmtime_r(&t, &tt);
+#endif
 
     char buffer[50];
     strftime(buffer, sizeof(buffer) / sizeof(*buffer), "%Y-%m-%d %H:%M:%S%z", &tt);
