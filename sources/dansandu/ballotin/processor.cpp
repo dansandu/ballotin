@@ -118,7 +118,7 @@ void Processor::loop()
                     case Signal::finishAndYield:
                         paused = done;
                         finishing = true;
-                        index = queue_.size();
+                        index = static_cast<decltype(index)>(queue_.size());
                         break;
                     }
                 }

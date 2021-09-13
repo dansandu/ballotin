@@ -1,6 +1,6 @@
+#include "dansandu/ballotin/processor.hpp"
 #include "catchorg/catch/catch.hpp"
 #include "dansandu/ballotin/exception.hpp"
-#include "dansandu/ballotin/processor.hpp"
 
 #include <thread>
 #include <vector>

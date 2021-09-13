@@ -12,7 +12,7 @@ std::string getDateTime()
     time(&t);
 
     auto tt = tm{};
-    gmtime_r(&t, &tt);
+    gmtime_s(&tt, &t);
 
     char buffer[50];
     strftime(buffer, sizeof(buffer) / sizeof(*buffer), "%Y-%m-%d %H:%M:%S%z", &tt);

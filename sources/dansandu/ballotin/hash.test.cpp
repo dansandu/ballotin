@@ -1,5 +1,5 @@
-#include "catchorg/catch/catch.hpp"
 #include "dansandu/ballotin/hash.hpp"
+#include "catchorg/catch/catch.hpp"
 
 using dansandu::ballotin::hash::hashCombine;
 

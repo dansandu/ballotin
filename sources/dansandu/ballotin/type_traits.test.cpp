@@ -1,5 +1,5 @@
-#include "catchorg/catch/catch.hpp"
 #include "dansandu/ballotin/type_traits.hpp"
+#include "catchorg/catch/catch.hpp"
 
 using dansandu::ballotin::type_traits::TypePack;
 

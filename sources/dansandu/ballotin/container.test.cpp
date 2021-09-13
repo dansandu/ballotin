@@ -1,5 +1,5 @@
-#include "catchorg/catch/catch.hpp"
 #include "dansandu/ballotin/container.hpp"
+#include "catchorg/catch/catch.hpp"
 
 #include <map>
 #include <sstream>

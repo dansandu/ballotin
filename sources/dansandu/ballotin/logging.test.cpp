@@ -1,5 +1,5 @@
-#include "catchorg/catch/catch.hpp"
 #include "dansandu/ballotin/logging.hpp"
+#include "catchorg/catch/catch.hpp"
 
 #include <stdexcept>
 #include <string>
@@ -23,19 +23,21 @@ TEST_CASE("logging")
 
         auto logged = false;
 
-        logger.addHandler("test", Level::debug, [&](const LogEntry& logEntry) {
-            REQUIRE(logEntry.function == expectedFunction);
+        logger.addHandler("test", Level::debug,
+                          [&](const LogEntry& logEntry)
+                          {
+                              REQUIRE(logEntry.function == expectedFunction);
 
-            REQUIRE(logEntry.file == expectedFile);
+                              REQUIRE(logEntry.file == expectedFile);
 
-            REQUIRE(logEntry.line == expectedLine);
+                              REQUIRE(logEntry.line == expectedLine);
 
-            REQUIRE(logEntry.level == expectedLevel);
+                              REQUIRE(logEntry.level == expectedLevel);
 
-            REQUIRE(logEntry.messageSupplier() == expectedMessage);
+                              REQUIRE(logEntry.messageSupplier() == expectedMessage);
 
-            logged = true;
-        });
+                              logged = true;
+                          });
 
         logger.log(expectedFunction, expectedFile, expectedLine, expectedLevel, expectedMessage);
 
@@ -89,10 +91,12 @@ TEST_CASE("logging")
 
         auto calls = 0;
 
-        logger.log("function", "file", 3, Level::error, [&calls, &message]() {
-            ++calls;
-            return message;
-        });
+        logger.log("function", "file", 3, Level::error,
+                   [&calls, &message]()
+                   {
+                       ++calls;
+                       return message;
+                   });
 
         REQUIRE(calls == 1);
     }

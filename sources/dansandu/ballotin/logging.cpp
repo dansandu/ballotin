@@ -61,12 +61,7 @@ void Logger::log(const char* const function, const char* const file, const int l
 {
     if (level <= getLevel())
     {
-        const auto logEntry = LogEntry{.timestamp = getDateTime(),
-                                       .level = level,
-                                       .function = function,
-                                       .file = file,
-                                       .line = line,
-                                       .messageSupplier = [message]() { return message; }};
+        const auto logEntry = LogEntry{getDateTime(), level, function, file, line, [message]() { return message; }};
 
         const auto lock = std::lock_guard<std::mutex>{mutex_};
         for (const auto& handler : handlers_)
@@ -84,23 +79,23 @@ void Logger::log(const char* const function, const char* const file, const int l
 {
     if (level <= getLevel())
     {
-        const auto logEntry =
-            LogEntry{.timestamp = getDateTime(),
-                     .level = level,
-                     .function = function,
-                     .file = file,
-                     .line = line,
-                     .messageSupplier = [&messageSupplier, cached = false, message = std::string{}]() mutable {
-                         if (cached)
-                         {
-                             return std::string_view{message};
-                         }
+        const auto logEntry = LogEntry{getDateTime(),
+                                       level,
+                                       function,
+                                       file,
+                                       line,
+                                       [&messageSupplier, cached = false, message = std::string{}]() mutable
+                                       {
+                                           if (cached)
+                                           {
+                                               return std::string_view{message};
+                                           }
 
-                         message = messageSupplier();
-                         cached = true;
+                                           message = messageSupplier();
+                                           cached = true;
 
-                         return std::string_view{message};
-                     }};
+                                           return std::string_view{message};
+                                       }};
 
         const auto lock = std::lock_guard<std::mutex>{mutex_};
         for (const auto& handler : handlers_)
