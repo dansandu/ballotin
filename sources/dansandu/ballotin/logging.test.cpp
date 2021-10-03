@@ -39,7 +39,7 @@ TEST_CASE("logging")
                               logged = true;
                           });
 
-        logger.log(expectedFunction, expectedFile, expectedLine, expectedLevel, expectedMessage);
+        logger.log(expectedLevel, expectedFunction, expectedFile, expectedLine, expectedMessage);
 
         REQUIRE(logged);
     }
@@ -50,7 +50,7 @@ TEST_CASE("logging")
 
         logger.addHandler("test", Level::info, [&](const LogEntry&) { logged = true; });
 
-        logger.log("function", "file", 3, Level::debug, "message");
+        logger.log(Level::debug, "function", "file", 3, "message");
 
         REQUIRE(!logged);
     }
@@ -74,7 +74,7 @@ TEST_CASE("logging")
 
         logger.removeHandler("test");
 
-        logger.log("function", "file", 3, Level::error, "message");
+        logger.log(Level::error, "function", "file", 3, "message");
 
         REQUIRE(!logged);
     }
@@ -91,7 +91,7 @@ TEST_CASE("logging")
 
         auto calls = 0;
 
-        logger.log("function", "file", 3, Level::error,
+        logger.log(Level::error, "function", "file", 3,
                    [&calls, &message]()
                    {
                        ++calls;

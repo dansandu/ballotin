@@ -7,6 +7,7 @@
 #include <mutex>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <vector>
 
 namespace dansandu::ballotin::logging
@@ -51,6 +52,7 @@ struct LogEntry
 {
     std::string_view timestamp;
     Level level;
+    std::thread::id threadId;
     const char* function;
     const char* file;
     int line;
@@ -72,10 +74,10 @@ public:
 
     Level getLevel() const;
 
-    void log(const char* const function, const char* const file, const int line, const Level level,
+    void log(const Level level, const char* const function, const char* const file, const int line,
              const std::string_view message) const;
 
-    void log(const char* const function, const char* const file, const int line, const Level level,
+    void log(const Level level, const char* const function, const char* const file, const int line,
              const std::function<std::string()>& messageSupplier) const;
 
 private:
@@ -93,12 +95,14 @@ private:
 
 PRALINE_EXPORT void standardOutputHandler(const LogEntry& logEntry);
 
+PRALINE_EXPORT void unitTestsHandler(const LogEntry& logEntry);
+
 }
 
 #if (PRALINE_LOGGING_LEVEL >= 1)
 #define LOG_ERROR(...)                                                                                                 \
     dansandu::ballotin::logging::Logger::globalInstance().log(                                                         \
-        __func__, __FILE__, __LINE__, dansandu::ballotin::logging::Level::error,                                       \
+        dansandu::ballotin::logging::Level::error, __func__, __FILE__, __LINE__,                                       \
         [&]() { return dansandu::ballotin::string::format(__VA_ARGS__); });
 #else
 #define LOG_ERROR(...) ;
@@ -107,7 +111,7 @@ PRALINE_EXPORT void standardOutputHandler(const LogEntry& logEntry);
 #if (PRALINE_LOGGING_LEVEL >= 2)
 #define LOG_WARN(...)                                                                                                  \
     dansandu::ballotin::logging::Logger::globalInstance().log(                                                         \
-        __func__, __FILE__, __LINE__, dansandu::ballotin::logging::Level::warn,                                        \
+        dansandu::ballotin::logging::Level::warn, __func__, __FILE__, __LINE__,                                        \
         [&]() { return dansandu::ballotin::string::format(__VA_ARGS__); });
 #else
 #define LOG_WARN(...) ;
@@ -116,7 +120,7 @@ PRALINE_EXPORT void standardOutputHandler(const LogEntry& logEntry);
 #if (PRALINE_LOGGING_LEVEL >= 3)
 #define LOG_INFO(...)                                                                                                  \
     dansandu::ballotin::logging::Logger::globalInstance().log(                                                         \
-        __func__, __FILE__, __LINE__, dansandu::ballotin::logging::Level::info,                                        \
+        dansandu::ballotin::logging::Level::info, __func__, __FILE__, __LINE__,                                        \
         [&]() { return dansandu::ballotin::string::format(__VA_ARGS__); });
 #else
 #define LOG_INFO(...) ;
@@ -125,7 +129,7 @@ PRALINE_EXPORT void standardOutputHandler(const LogEntry& logEntry);
 #if (PRALINE_LOGGING_LEVEL >= 4)
 #define LOG_DEBUG(...)                                                                                                 \
     dansandu::ballotin::logging::Logger::globalInstance().log(                                                         \
-        __func__, __FILE__, __LINE__, dansandu::ballotin::logging::Level::debug,                                       \
+        dansandu::ballotin::logging::Level::debug, __func__, __FILE__, __LINE__,                                       \
         [&]() { return dansandu::ballotin::string::format(__VA_ARGS__); });
 #else
 #define LOG_DEBUG(...) ;

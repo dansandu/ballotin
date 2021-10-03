@@ -11,7 +11,7 @@ using dansandu::ballotin::container::pop;
 using dansandu::ballotin::container::uniquePushBack;
 using dansandu::ballotin::container::operator<<;
 
-TEST_CASE("Container")
+TEST_CASE("container")
 {
     SECTION("pop")
     {

@@ -5,7 +5,7 @@
 
 using Catch::Matches;
 
-TEST_CASE("Exception")
+TEST_CASE("exception")
 {
     SECTION("pretty throw")
     {

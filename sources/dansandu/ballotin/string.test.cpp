@@ -9,7 +9,7 @@ using dansandu::ballotin::string::join;
 using dansandu::ballotin::string::split;
 using dansandu::ballotin::string::trim;
 
-TEST_CASE("String")
+TEST_CASE("string")
 {
     SECTION("join")
     {

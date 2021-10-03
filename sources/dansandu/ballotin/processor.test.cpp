@@ -58,7 +58,7 @@ static auto cast(std::unique_ptr<IProcess> process)
 
 using vec = std::vector<int>;
 
-TEST_CASE("Processor", "[!mayfail]")
+TEST_CASE("processor", "[!mayfail]")
 {
     auto processor = Processor{std::make_unique<CountIntegersProcess>()};
 

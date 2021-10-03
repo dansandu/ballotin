@@ -3,7 +3,7 @@
 
 using dansandu::ballotin::hash::hashCombine;
 
-TEST_CASE("Hash")
+TEST_CASE("hash")
 {
     SECTION("hash combine")
     {

@@ -4,6 +4,7 @@
 #include "dansandu/ballotin/string.hpp"
 
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 
 using dansandu::ballotin::date_time::getDateTime;
@@ -56,12 +57,13 @@ Level Logger::getLevel() const
     return level_.load();
 }
 
-void Logger::log(const char* const function, const char* const file, const int line, const Level level,
+void Logger::log(const Level level, const char* const function, const char* const file, const int line,
                  const std::string_view message) const
 {
     if (level <= getLevel())
     {
-        const auto logEntry = LogEntry{getDateTime(), level, function, file, line, [message]() { return message; }};
+        const auto logEntry = LogEntry{getDateTime(), level, std::this_thread::get_id(),     function,
+                                       file,          line,  [message]() { return message; }};
 
         const auto lock = std::lock_guard<std::mutex>{mutex_};
         for (const auto& handler : handlers_)
@@ -74,13 +76,14 @@ void Logger::log(const char* const function, const char* const file, const int l
     }
 }
 
-void Logger::log(const char* const function, const char* const file, const int line, const Level level,
+void Logger::log(const Level level, const char* const function, const char* const file, const int line,
                  const std::function<std::string()>& messageSupplier) const
 {
     if (level <= getLevel())
     {
         const auto logEntry = LogEntry{getDateTime(),
                                        level,
+                                       std::this_thread::get_id(),
                                        function,
                                        file,
                                        line,
@@ -110,16 +113,31 @@ void Logger::log(const char* const function, const char* const file, const int l
 
 void standardOutputHandler(const LogEntry& logEntry)
 {
+    static auto mutex = std::mutex{};
+
+    const auto lock = std::lock_guard<std::mutex>{mutex};
     if (logEntry.level <= Level::warn)
     {
-        std::cerr << logEntry.timestamp << " " << levelToString(logEntry.level) << " " << logEntry.function << " "
+        std::cerr << logEntry.timestamp << " " << levelToString(logEntry.level) << " " << logEntry.threadId << " "
                   << logEntry.file << ":" << logEntry.line << " " << logEntry.messageSupplier() << std::endl;
     }
     else
     {
-        std::cout << logEntry.timestamp << " " << levelToString(logEntry.level) << " " << logEntry.function << " "
+        std::cout << logEntry.timestamp << " " << levelToString(logEntry.level) << " " << logEntry.threadId << " "
                   << logEntry.file << ":" << logEntry.line << " " << logEntry.messageSupplier() << std::endl;
     }
+}
+
+void unitTestsHandler(const LogEntry& logEntry)
+{
+    {
+        auto logFile = std::ofstream{"unit_tests.log", std::ios_base::out | std::ios_base::app};
+
+        logFile << logEntry.timestamp << " " << levelToString(logEntry.level) << " " << logEntry.threadId << " "
+                << logEntry.file << ":" << logEntry.line << " " << logEntry.messageSupplier() << std::endl;
+    }
+
+    standardOutputHandler(logEntry);
 }
 
 }

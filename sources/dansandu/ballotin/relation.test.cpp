@@ -19,7 +19,7 @@ private:
     int weight_;
 };
 
-TEST_CASE("Relation")
+TEST_CASE("relation")
 {
     SECTION("total order")
     {
