@@ -128,16 +128,35 @@ void standardOutputHandler(const LogEntry& logEntry)
     }
 }
 
-void unitTestsHandler(const LogEntry& logEntry)
+struct UnitTestsHandlerImplementation
 {
+    static void deleter(void* pointer)
     {
-        auto logFile = std::ofstream{"unit_tests.log", std::ios_base::out | std::ios_base::app};
-
-        logFile << logEntry.timestamp << " " << levelToString(logEntry.level) << " " << logEntry.threadId << " "
-                << logEntry.file << ":" << logEntry.line << " " << logEntry.messageSupplier() << std::endl;
+        delete static_cast<UnitTestsHandlerImplementation*>(pointer);
     }
 
+    UnitTestsHandlerImplementation(const char* const filePath)
+        : logFile{filePath, std::ios_base::out | std::ios_base::app}
+    {
+    }
+
+    std::ofstream logFile;
+    std::mutex mutex;
+};
+
+UnitTestsHandler::UnitTestsHandler(const char* const filePath)
+    : implementation_{new UnitTestsHandlerImplementation{filePath}, UnitTestsHandlerImplementation::deleter}
+{
+}
+
+void UnitTestsHandler::operator()(const LogEntry& logEntry)
+{
     standardOutputHandler(logEntry);
+
+    const auto casted = static_cast<UnitTestsHandlerImplementation*>(implementation_.get());
+    const auto lock = std::lock_guard<std::mutex>{casted->mutex};
+    casted->logFile << logEntry.timestamp << " " << levelToString(logEntry.level) << " " << logEntry.threadId << " "
+                    << logEntry.file << ":" << logEntry.line << " " << logEntry.messageSupplier() << std::endl;
 }
 
 }

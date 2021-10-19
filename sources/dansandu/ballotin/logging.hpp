@@ -4,6 +4,7 @@
 
 #include <atomic>
 #include <functional>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <string_view>
@@ -95,7 +96,16 @@ private:
 
 PRALINE_EXPORT void standardOutputHandler(const LogEntry& logEntry);
 
-PRALINE_EXPORT void unitTestsHandler(const LogEntry& logEntry);
+class PRALINE_EXPORT UnitTestsHandler
+{
+public:
+    UnitTestsHandler(const char* const filePath);
+
+    void operator()(const LogEntry& logEntry);
+
+private:
+    std::shared_ptr<void> implementation_;
+};
 
 }
 
