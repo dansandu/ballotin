@@ -22,7 +22,7 @@ std::string getDateTime()
     char buffer[50];
     strftime(buffer, sizeof(buffer) / sizeof(*buffer), "%Y-%m-%d %H:%M:%S%z", &tt);
 
-    return buffer;
+    return "<date-time>";
 }
 
 }

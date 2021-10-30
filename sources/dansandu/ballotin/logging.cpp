@@ -1,13 +1,15 @@
 #include "dansandu/ballotin/logging.hpp"
 #include "dansandu/ballotin/date_time.hpp"
 #include "dansandu/ballotin/exception.hpp"
+#include "dansandu/ballotin/file_system.hpp"
 #include "dansandu/ballotin/string.hpp"
 
 #include <algorithm>
 #include <fstream>
-#include <iostream>
 
 using dansandu::ballotin::date_time::getDateTime;
+using dansandu::ballotin::file_system::writeToStandardError;
+using dansandu::ballotin::file_system::writeToStandardOutput;
 
 namespace dansandu::ballotin::logging
 {
@@ -113,18 +115,18 @@ void Logger::log(const Level level, const char* const function, const char* cons
 
 void standardOutputHandler(const LogEntry& logEntry)
 {
-    static auto mutex = std::mutex{};
+    auto stream = std::stringstream{};
+    stream << logEntry.timestamp << " " << levelToString(logEntry.level) << " " << logEntry.threadId << " "
+           << logEntry.file << ":" << logEntry.line << " " << logEntry.messageSupplier() << std::endl;
+    const auto string = stream.str();
 
-    const auto lock = std::lock_guard<std::mutex>{mutex};
     if (logEntry.level <= Level::warn)
     {
-        std::cerr << logEntry.timestamp << " " << levelToString(logEntry.level) << " " << logEntry.threadId << " "
-                  << logEntry.file << ":" << logEntry.line << " " << logEntry.messageSupplier() << std::endl;
+        writeToStandardOutput(string);
     }
     else
     {
-        std::cout << logEntry.timestamp << " " << levelToString(logEntry.level) << " " << logEntry.threadId << " "
-                  << logEntry.file << ":" << logEntry.line << " " << logEntry.messageSupplier() << std::endl;
+        writeToStandardError(string);
     }
 }
 
@@ -151,12 +153,23 @@ UnitTestsHandler::UnitTestsHandler(const char* const filePath)
 
 void UnitTestsHandler::operator()(const LogEntry& logEntry)
 {
-    standardOutputHandler(logEntry);
+    auto stream = std::stringstream{};
+    stream << logEntry.timestamp << " " << levelToString(logEntry.level) << " " << logEntry.threadId << " "
+           << logEntry.file << ":" << logEntry.line << " " << logEntry.messageSupplier() << std::endl;
+    const auto string = stream.str();
+
+    if (logEntry.level <= Level::warn)
+    {
+        writeToStandardOutput(string);
+    }
+    else
+    {
+        writeToStandardError(string);
+    }
 
     const auto casted = static_cast<UnitTestsHandlerImplementation*>(implementation_.get());
     const auto lock = std::lock_guard<std::mutex>{casted->mutex};
-    casted->logFile << logEntry.timestamp << " " << levelToString(logEntry.level) << " " << logEntry.threadId << " "
-                    << logEntry.file << ":" << logEntry.line << " " << logEntry.messageSupplier() << std::endl;
+    casted->logFile << string;
 }
 
 }

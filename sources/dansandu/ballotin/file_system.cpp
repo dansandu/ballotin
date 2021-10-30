@@ -2,6 +2,8 @@
 #include "dansandu/ballotin/exception.hpp"
 
 #include <fstream>
+#include <iostream>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -39,6 +41,20 @@ std::vector<uint8_t> readBinaryFile(const std::string& path)
     }
 
     return bytes;
+}
+
+void writeToStandardOutput(const std::string_view string)
+{
+    static auto mutex = std::mutex{};
+    auto lock = std::lock_guard<std::mutex>{mutex};
+    std::cout << string;
+}
+
+void writeToStandardError(const std::string_view string)
+{
+    static auto mutex = std::mutex{};
+    auto lock = std::lock_guard<std::mutex>{mutex};
+    std::cerr << string;
 }
 
 }
