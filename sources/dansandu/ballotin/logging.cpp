@@ -156,20 +156,9 @@ void UnitTestsHandler::operator()(const LogEntry& logEntry)
     auto stream = std::stringstream{};
     stream << logEntry.timestamp << " " << levelToString(logEntry.level) << " " << logEntry.threadId << " "
            << logEntry.file << ":" << logEntry.line << " " << logEntry.messageSupplier() << std::endl;
-    const auto string = stream.str();
-
-    if (logEntry.level <= Level::warn)
-    {
-        writeToStandardOutput(string);
-    }
-    else
-    {
-        writeToStandardError(string);
-    }
-
     const auto casted = static_cast<UnitTestsHandlerImplementation*>(implementation_.get());
     const auto lock = std::lock_guard<std::mutex>{casted->mutex};
-    casted->logFile << string;
+    casted->logFile << stream.rdbuf();
 }
 
 }
