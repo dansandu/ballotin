@@ -34,7 +34,7 @@ TEST_CASE("logging")
 
                               REQUIRE(logEntry.level == expectedLevel);
 
-                              REQUIRE(logEntry.messageSupplier() == expectedMessage);
+                              REQUIRE(logEntry.message == expectedMessage);
 
                               logged = true;
                           });
@@ -77,27 +77,5 @@ TEST_CASE("logging")
         logger.log(Level::error, "function", "file", 3, "message");
 
         REQUIRE(!logged);
-    }
-
-    SECTION("caches messages")
-    {
-        const auto message = std::string{"message"};
-
-        logger.addHandler("first", Level::debug,
-                          [&](const LogEntry& logEntry) { REQUIRE(logEntry.messageSupplier() == message); });
-
-        logger.addHandler("second", Level::debug,
-                          [&](const LogEntry& logEntry) { REQUIRE(logEntry.messageSupplier() == message); });
-
-        auto calls = 0;
-
-        logger.log(Level::error, "function", "file", 3,
-                   [&calls, &message]()
-                   {
-                       ++calls;
-                       return message;
-                   });
-
-        REQUIRE(calls == 1);
     }
 }

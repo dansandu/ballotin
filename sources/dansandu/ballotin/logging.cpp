@@ -64,8 +64,8 @@ void Logger::log(const Level level, const char* const function, const char* cons
 {
     if (level <= getLevel())
     {
-        const auto logEntry = LogEntry{getDateTime(), level, std::this_thread::get_id(),     function,
-                                       file,          line,  [message]() { return message; }};
+        const auto timestamp = getDateTime();
+        const auto logEntry = LogEntry{timestamp, level, std::this_thread::get_id(), function, file, line, message};
 
         const auto lock = std::lock_guard<std::mutex>{mutex_};
         for (const auto& handler : handlers_)
@@ -83,24 +83,9 @@ void Logger::log(const Level level, const char* const function, const char* cons
 {
     if (level <= getLevel())
     {
-        const auto logEntry = LogEntry{getDateTime(),
-                                       level,
-                                       std::this_thread::get_id(),
-                                       function,
-                                       file,
-                                       line,
-                                       [&messageSupplier, cached = false, message = std::string{}]() mutable
-                                       {
-                                           if (cached)
-                                           {
-                                               return std::string_view{message};
-                                           }
-
-                                           message = messageSupplier();
-                                           cached = true;
-
-                                           return std::string_view{message};
-                                       }};
+        const auto timestamp = getDateTime();
+        const auto message = messageSupplier();
+        const auto logEntry = LogEntry{timestamp, level, std::this_thread::get_id(), function, file, line, message};
 
         const auto lock = std::lock_guard<std::mutex>{mutex_};
         for (const auto& handler : handlers_)
@@ -117,7 +102,7 @@ void standardOutputHandler(const LogEntry& logEntry)
 {
     auto stream = std::stringstream{};
     stream << logEntry.timestamp << " " << levelToString(logEntry.level) << " " << logEntry.threadId << " "
-           << logEntry.file << ":" << logEntry.line << " " << logEntry.messageSupplier() << std::endl;
+           << logEntry.file << ":" << logEntry.line << " " << logEntry.message << std::endl;
     const auto string = stream.str();
 
     if (logEntry.level <= Level::warn)
@@ -155,8 +140,9 @@ void UnitTestsHandler::operator()(const LogEntry& logEntry)
 {
     auto stream = std::stringstream{};
     stream << logEntry.timestamp << " " << levelToString(logEntry.level) << " " << logEntry.threadId << " "
-           << logEntry.file << ":" << logEntry.line << " " << logEntry.messageSupplier() << std::endl;
+           << logEntry.file << ":" << logEntry.line << " " << logEntry.message << std::endl;
     const auto casted = static_cast<UnitTestsHandlerImplementation*>(implementation_.get());
+
     const auto lock = std::lock_guard<std::mutex>{casted->mutex};
     casted->logFile << stream.rdbuf();
 }

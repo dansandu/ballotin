@@ -57,7 +57,7 @@ struct LogEntry
     const char* function;
     const char* file;
     int line;
-    std::function<std::string_view()> messageSupplier;
+    std::string_view message;
 };
 
 class PRALINE_EXPORT Logger
