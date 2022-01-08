@@ -2,11 +2,8 @@
 
 #include "dansandu/ballotin/type_traits.hpp"
 
-#include <condition_variable>
+#include <chrono>
 #include <memory>
-#include <mutex>
-#include <thread>
-#include <vector>
 
 namespace dansandu::ballotin::processor
 {
@@ -26,11 +23,10 @@ public:
     virtual bool done() const = 0;
 };
 
-class PRALINE_EXPORT Processor : private dansandu::ballotin::type_traits::Uncopyable,
-                                 private dansandu::ballotin::type_traits::Immovable
+class PRALINE_EXPORT Processor
 {
 public:
-    Processor(std::unique_ptr<IProcess> process);
+    Processor(std::unique_ptr<IProcess> process, const std::chrono::milliseconds interval);
 
     ~Processor();
 
@@ -40,27 +36,12 @@ public:
 
     void reset();
 
+    std::unique_ptr<IProcess> wait();
+
     std::unique_ptr<IProcess> yield();
 
-    std::unique_ptr<IProcess> finishAndYield();
-
 private:
-    void loop();
-
-    enum class Signal
-    {
-        resume,
-        pause,
-        reset,
-        yield,
-        finishAndYield
-    };
-
-    std::unique_ptr<IProcess> process_;
-    std::mutex mutex_;
-    std::condition_variable conditionVariable_;
-    std::vector<Signal> queue_;
-    std::thread thread_;
+    std::unique_ptr<void, void (*)(void*)> implementation_;
 };
 
 }
