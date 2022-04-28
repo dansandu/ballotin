@@ -32,7 +32,7 @@ TEST_CASE("random")
 
             SECTION("shuffle")
             {
-                const auto samples = 50000;
+                const auto samples = 1000;
 
                 auto ordered = std::vector<int>{};
                 for (auto index = 0; index < samples; ++index)

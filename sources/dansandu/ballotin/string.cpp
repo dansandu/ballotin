@@ -37,14 +37,18 @@ std::vector<std::string> split(const std::string_view string, const std::string_
 std::string trim(const std::string_view string)
 {
     auto begin = string.begin();
-    while (begin < string.end() && std::isspace(*begin))
+    while (begin != string.end() && std::isspace(*begin))
+    {
         ++begin;
+    }
 
-    auto end = string.end() - 1;
-    while (end > begin && std::isspace(*end))
+    auto end = string.end();
+    while (end != begin && std::isspace(*(end - 1)))
+    {
         --end;
+    }
 
-    return {begin, end + 1};
+    return {begin, end};
 }
 
 }
