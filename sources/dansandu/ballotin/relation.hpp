@@ -23,12 +23,12 @@ struct TotalOrder
 
     friend bool operator==(const T& left, const T& right)
     {
-        return !(left < right) & !(right < left);
+        return !(left < right) && !(right < left);
     }
 
     friend bool operator!=(const T& left, const T& right)
     {
-        return (left < right) | (right < left);
+        return (left < right) || (right < left);
     }
 };
 
