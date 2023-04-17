@@ -33,4 +33,14 @@ PRALINE_EXPORT std::vector<std::string> split(const std::string_view string, con
 
 PRALINE_EXPORT std::string trim(const std::string_view string);
 
+enum class TextHighlight
+{
+    None,
+    Red,
+    Green,
+    Blue,
+};
+
+PRALINE_EXPORT std::string highlightText(const std::string& text, const TextHighlight textHighlight);
+
 }
