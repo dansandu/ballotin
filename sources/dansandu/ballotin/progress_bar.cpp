@@ -17,8 +17,6 @@ namespace dansandu::ballotin::progress_bar
 
 static constexpr auto maxSummarySize = 40;
 static constexpr auto barSize = 50;
-static constexpr auto filledBarCharacter = '\xDB';
-static constexpr auto emptyBarCharacter = '\xB1';
 static constexpr auto completedSummary = "done";
 static constexpr auto cancelledSummary = "halted";
 
@@ -124,9 +122,25 @@ void ProgressBar::display(bool exiting, bool success)
 
     const auto ending = exiting ? "\n" : "";
 
-    const auto line = "\r" + formattedHeader + " " + std::string(filledSize, filledBarCharacter) +
-                      std::string(emptySize, emptyBarCharacter) + " " + formattedPercentage + " " + formattedSummary +
-                      ending;
+#ifdef _WIN32
+    const auto filledBarCharacter = '\xDB';
+    const auto emptyBarCharacter = '\xB1';
+    auto bar = std::string(filledSize, filledBarCharacter) + std::string(emptySize, emptyBarCharacter);
+#else
+    const auto filledBar = "\u2588";
+    const auto emptyBar = "\u2592";
+    auto bar = std::string{};
+    for (auto index = 0; index < filledSize; ++index)
+    {
+        bar += filledBar;
+    }
+    for (auto index = 0; index < emptySize; ++index)
+    {
+        bar += emptyBar;
+    }
+#endif
+
+    const auto line = "\r" + formattedHeader + " " + bar + " " + formattedPercentage + " " + formattedSummary + ending;
 
     printer_(line);
 }

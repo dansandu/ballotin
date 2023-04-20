@@ -1,5 +1,5 @@
 #include "dansandu/ballotin/binary.hpp"
-#include "catchorg/catch/catch.hpp"
+#include "catchorg/catch2/catch_test_macros.hpp"
 
 #include <cstdint>
 #include <vector>

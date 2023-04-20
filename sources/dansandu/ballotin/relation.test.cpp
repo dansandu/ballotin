@@ -1,5 +1,5 @@
 #include "dansandu/ballotin/relation.hpp"
-#include "catchorg/catch/catch.hpp"
+#include "catchorg/catch2/catch_test_macros.hpp"
 
 using dansandu::ballotin::relation::TotalOrder;
 

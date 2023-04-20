@@ -1,10 +1,13 @@
-#define CATCH_CONFIG_RUNNER
-#include "catchorg/catch/catch.hpp"
+#include "catchorg/catch2/catch_session.hpp"
+#include "catchorg/catch2/catch_test_case_info.hpp"
+#include "catchorg/catch2/reporters/catch_reporter_event_listener.hpp"
+#include "catchorg/catch2/reporters/catch_reporter_registrars.hpp"
 #include "dansandu/ballotin/environment.hpp"
 #include "dansandu/ballotin/logging.hpp"
 #include "dansandu/ballotin/progress_bar.hpp"
 
 #include <iostream>
+#include <set>
 
 using dansandu::ballotin::environment::getEnvironmentVariable;
 using dansandu::ballotin::logging::Level;
@@ -12,60 +15,71 @@ using dansandu::ballotin::logging::Logger;
 using dansandu::ballotin::logging::UnitTestsHandler;
 using dansandu::ballotin::progress_bar::ProgressBar;
 
-class ProgressBarListener : public Catch::TestEventListenerBase
+class ProgressBarEventListener : public Catch::EventListenerBase
 {
 public:
-    ProgressBarListener(Catch::ReporterConfig const& _config) : TestEventListenerBase(_config)
-    {
-        std::set<Catch::TestCase const*> tests;
-        const auto& allTestCases = getAllTestCasesSorted(*m_config);
-        Catch::TestSpec::Matches matches = _config.fullConfig()->testSpec().matchesByFilter(allTestCases, *m_config);
-        const auto& invalidArgs = _config.fullConfig()->testSpec().getInvalidArgs();
+    using Catch::EventListenerBase::EventListenerBase;
 
-        if (matches.empty() && invalidArgs.empty())
+    void testRunStarting(Catch::TestRunInfo const&) override
+    {
+        auto tests = std::set<Catch::TestCaseHandle const*>{};
+        auto const& allTestCases = getAllTestCasesSorted(*m_config);
+        auto const& testSpec = m_config->testSpec();
+        if (!testSpec.hasFilters())
         {
             for (auto const& test : allTestCases)
-                if (!test.isHidden())
+            {
+                if (!test.getTestCaseInfo().isHidden())
+                {
                     tests.emplace(&test);
+                }
+            }
         }
         else
         {
+            auto matches = testSpec.matchesByFilter(allTestCases, *m_config);
             for (auto const& match : matches)
-                tests.insert(match.tests.begin(), match.tests.end());
-        }
-
-        const auto header = std::string{"test"};
-        const auto headerSize = getEnvironmentVariable("PRALINE_PROGRESS_BAR_HEADER_LENGTH");
-
-        progressBar_ = std::make_unique<ProgressBar>(
-            header, headerSize.has_value() ? std::stoi(headerSize.value()) : header.size(), tests.size(),
-            [](const auto& text)
             {
-                std::cout << text;
-                std::cout.flush();
-            });
+                tests.insert(match.tests.begin(), match.tests.end());
+            }
+        }
+        testCount_ = tests.size();
     }
 
     void testCaseStarting(Catch::TestCaseInfo const& testInfo) override
     {
+        if (progressBar_ == nullptr)
+        {
+            const auto header = std::string{"test"};
+            const auto headerSizeStr = getEnvironmentVariable("PRALINE_PROGRESS_BAR_HEADER_LENGTH");
+            const auto headerSize = headerSizeStr.has_value() ? std::stoi(headerSizeStr.value()) : header.size();
+
+            progressBar_ = std::make_unique<ProgressBar>(header, headerSize, testCount_,
+                                                         [](const auto& text)
+                                                         {
+                                                             std::cout << text;
+                                                             std::cout.flush();
+                                                         });
+        }
         progressBar_->updateSummary(testInfo.name);
     }
 
-    void testCaseEnded(Catch::TestCaseStats const& testCaseStats) override
+    void testCaseEnded(Catch::TestCaseStats const&) override
     {
         progressBar_->advance();
     }
 
-    void testGroupEnded(Catch::TestGroupStats const& testGroupStats) override
+    void testRunEnded(Catch::TestRunStats const&) override
     {
         progressBar_.reset();
     }
 
 private:
+    int testCount_;
     std::unique_ptr<ProgressBar> progressBar_;
 };
 
-CATCH_REGISTER_LISTENER(ProgressBarListener);
+CATCH_REGISTER_LISTENER(ProgressBarEventListener);
 
 int main(const int argumentsCount, const char* const* const arguments)
 {
