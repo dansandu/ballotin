@@ -13,14 +13,11 @@ class InterruptedException : std::exception
 // clang-format off
 TEST_CASE("progress_bar")
 {
-    const auto generateBar = 
-        [](const int fill) { return std::string(fill, '=') + std::string(50 - fill, '-'); };
-
     SECTION("zero resolution success")
     {
         const std::string expectedLines[] = {
-            "\rstage " + generateBar( 0) + "  0.00%                                         ",
-            "\rstage " + generateBar(50) + "  \033[32mdone\033[0m                                          \n",
+            "\rstage ==================================================                                                \r",
+            "\rstage \033[32m==================================================\033[0m                                                \r\n",
         };
 
         const auto header = "stage";
@@ -47,8 +44,8 @@ TEST_CASE("progress_bar")
     SECTION("zero resolution failure")
     {
         const std::string expectedLines[] = {
-            "\rstage " + generateBar(0) + "  0.00%                                         ",
-            "\rstage " + generateBar(0) + " \033[31mhalted\033[0m                                         \n",
+            "\rstage ==================================================                                                \r",
+            "\rstage \033[31m==================================================\033[0m                                                \r\n",
         };
 
         const auto header = "stage";
@@ -80,12 +77,12 @@ TEST_CASE("progress_bar")
     SECTION("nonzero resolution")
     {
         const std::string expectedLines[] = {
-            "\rstage " + generateBar( 0) + "  0.00%                                         ",
-            "\rstage " + generateBar( 0) + "  0.00%                \033[34mshort/text\033[0m               ",
-            "\rstage " + generateBar(25) + " 50.00%                \033[34mshort/text\033[0m               ",
-            "\rstage " + generateBar(25) + " 50.00% \033[34m...ng/to/display/inside/the/progress/bar\033[0m",
-            "\rstage " + generateBar(49) + " 99.99% \033[34m...ng/to/display/inside/the/progress/bar\033[0m",
-            "\rstage " + generateBar(50) + "  \033[32mdone\033[0m                                          \n",
+            "\rstage ==================================================  0.00%                                         \r",
+            "\rstage ==================================================  0.00%                short/text               \r",
+            "\rstage \033[34m=========================\033[0m========================= 50.00%                short/text               \r",
+            "\rstage \033[34m=========================\033[0m========================= 50.00% ...ng/to/display/inside/the/progress/bar\r",
+            "\rstage \033[34m=================================================\033[0m= 99.99% ...ng/to/display/inside/the/progress/bar\r",
+            "\rstage \033[32m==================================================\033[0m                                                \r\n",
         };
 
         const auto header = "stage";
@@ -118,9 +115,9 @@ TEST_CASE("progress_bar")
     SECTION("early exit")
     {
         const std::string expectedLines[] = {
-            "\rstage " + generateBar( 0) + "  0.00%                                         ",
-            "\rstage " + generateBar(10) + " 20.00%                                         ",
-            "\rstage " + generateBar(50) + "  \033[32mdone\033[0m                                          \n",
+            "\rstage ==================================================  0.00%                                         \r",
+            "\rstage \033[34m==========\033[0m======================================== 20.00%                                         \r",
+            "\rstage \033[32m==================================================\033[0m                                                \r\n",
         };
 
         const auto header = "stage";
@@ -147,9 +144,9 @@ TEST_CASE("progress_bar")
     SECTION("exception")
     {
         const std::string expectedLines[] = {
-            "\rstage " + generateBar( 0) + "  0.00%                                         ",
-            "\rstage " + generateBar(10) + " 20.00%                                         ",
-            "\rstage " + generateBar(10) + " \033[31mhalted\033[0m                                         \n",
+            "\rstage ==================================================  0.00%                                         \r",
+            "\rstage \033[34m==========\033[0m======================================== 20.00%                                         \r",
+            "\rstage \033[31m==========\033[0m======================================== 20.00%                                         \r\n",
         };
 
         const auto header = "stage";
@@ -183,9 +180,10 @@ TEST_CASE("progress_bar")
     SECTION("last inch exception")
     {
         const std::string expectedLines[] = {
-            "\rstage " + generateBar( 0) + "  0.00%                                         ",
-            "\rstage " + generateBar(49) + " 99.99%                                         ",
-            "\rstage " + generateBar(49) + " \033[31mhalted\033[0m                                         \n",
+            "\rstage ==================================================  0.00%                                         \r",
+            "\rstage ==================================================  0.00%                short/text               \r",
+            "\rstage \033[34m=================================================\033[0m= 99.99%                short/text               \r",
+            "\rstage \033[31m=================================================\033[0m= 99.99%                short/text               \r\n",
         };
 
         const auto header = "stage";
@@ -203,6 +201,8 @@ TEST_CASE("progress_bar")
                     REQUIRE(text == expectedLines[index]);
                     ++index;
                 });
+
+            progressBar.updateSummary("short/text");
 
             progressBar.advance();
 

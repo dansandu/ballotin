@@ -17,10 +17,9 @@ namespace dansandu::ballotin::progress_bar
 
 static constexpr auto maxSummarySize = 40;
 static constexpr auto barSize = 50;
+static constexpr auto statusSize = 6;
 static constexpr auto filledBarCharacter = '=';
-static constexpr auto emptyBarCharacter = '-';
-static constexpr auto successStatus = "done";
-static constexpr auto failureStatus = "halted";
+static constexpr auto emptyBarCharacter = '=';
 
 static std::string formatSummary(const std::string& summary, const TextHighlight textHighlight = TextHighlight::None)
 {
@@ -92,6 +91,20 @@ void ProgressBar::advance(const int amount)
     display();
 }
 
+std::string formatStatus(const double percentage)
+{
+    if (percentage < 1.0)
+    {
+        char formattedPercentage[8];
+        std::snprintf(formattedPercentage, 8, "%5.2f%%", percentage * 100.0);
+        return formattedPercentage;
+    }
+    else
+    {
+        return "99.99%";
+    }
+}
+
 void ProgressBar::display(bool exiting, bool success)
 {
     auto header = std::string(headerSize_, ' ');
@@ -100,46 +113,54 @@ void ProgressBar::display(bool exiting, bool success)
     auto bar = std::string{};
     auto status = std::string{};
     auto summary = std::string{};
-    auto ending = "\n";
+    auto ending = "";
 
-    if (exiting && success)
+    if (exiting)
     {
-        bar = std::string(barSize, filledBarCharacter);
-        status = " " + highlightText(successStatus, TextHighlight::Green) + " ";
-        summary = formatSummary("", TextHighlight::None);
+        if (success)
+        {
+            bar = highlightText(std::string(barSize, filledBarCharacter), TextHighlight::Green);
+            status = std::string(statusSize, ' ');
+            summary = formatSummary("", TextHighlight::None);
+        }
+        else
+        {
+            if (resolution_ > 0)
+            {
+                const auto percentage = static_cast<double>(progress_) / resolution_;
+                const auto filledSize = std::min(static_cast<int>(percentage * barSize), barSize - 1);
+                bar = highlightText(std::string(filledSize, filledBarCharacter), TextHighlight::Red) +
+                      std::string(barSize - filledSize, emptyBarCharacter);
+                status = formatStatus(percentage);
+            }
+            else
+            {
+                bar = highlightText(std::string(barSize, filledBarCharacter), TextHighlight::Red);
+                status = std::string(statusSize, ' ');
+            }
+            summary = formatSummary(summary_, TextHighlight::None);
+        }
         ending = "\n";
     }
     else
     {
-        const auto percentage = resolution_ != 0 ? static_cast<double>(progress_) / resolution_ : 0.0;
-        const auto filledSize = std::min(static_cast<int>(percentage * barSize), barSize - 1);
-        bar = std::string(filledSize, filledBarCharacter) + std::string(barSize - filledSize, emptyBarCharacter);
-
-        if (exiting && !success)
+        if (resolution_ > 0)
         {
-            status = highlightText(failureStatus, TextHighlight::Red);
-            summary = formatSummary("", TextHighlight::None);
-            ending = "\n";
+            const auto percentage = static_cast<double>(progress_) / resolution_;
+            const auto filledSize = std::min(static_cast<int>(percentage * barSize), barSize - 1);
+            bar = highlightText(std::string(filledSize, filledBarCharacter), TextHighlight::Blue) +
+                  std::string(barSize - filledSize, emptyBarCharacter);
+            status = formatStatus(percentage);
         }
         else
         {
-            if (percentage < 0.9999)
-            {
-                char formattedPercentage[8];
-                std::snprintf(formattedPercentage, 8, "%5.2f%%", percentage * 100.0);
-                status = formattedPercentage;
-            }
-            else
-            {
-                status = "99.99%";
-            }
-
-            summary = formatSummary(summary_, TextHighlight::Blue);
-            ending = "";
+            bar = highlightText(std::string(barSize, emptyBarCharacter), TextHighlight::None);
+            status = std::string(statusSize, ' ');
         }
+        summary = formatSummary(summary_, TextHighlight::None);
     }
 
-    const auto line = "\r" + header + " " + bar + " " + status + " " + summary + ending;
+    const auto line = "\r" + header + " " + bar + " " + status + " " + summary + "\r" + ending;
 
     printer_(line);
 }
