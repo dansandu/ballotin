@@ -78,26 +78,6 @@ void Logger::log(const Level level, const char* const function, const char* cons
     }
 }
 
-void Logger::log(const Level level, const char* const function, const char* const file, const int line,
-                 const std::function<std::string()>& messageSupplier) const
-{
-    if (level <= getLevel())
-    {
-        const auto timestamp = getDateTime();
-        const auto message = messageSupplier();
-        const auto logEntry = LogEntry{timestamp, level, std::this_thread::get_id(), function, file, line, message};
-
-        const auto lock = std::lock_guard<std::mutex>{mutex_};
-        for (const auto& handler : handlers_)
-        {
-            if (logEntry.level <= handler.level)
-            {
-                handler.callback(logEntry);
-            }
-        }
-    }
-}
-
 void standardOutputHandler(const LogEntry& logEntry)
 {
     auto stream = std::stringstream{};
