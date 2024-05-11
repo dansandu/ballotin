@@ -78,9 +78,6 @@ public:
     void log(const Level level, const char* const function, const char* const file, const int line,
              const std::string_view message) const;
 
-    void log(const Level level, const char* const function, const char* const file, const int line,
-             const std::function<std::string()>& messageSupplier) const;
-
 private:
     struct Handler
     {
@@ -111,36 +108,36 @@ private:
 
 #if (PRALINE_LOGGING_LEVEL >= 1)
 #define LOG_ERROR(...)                                                                                                 \
-    dansandu::ballotin::logging::Logger::globalInstance().log(                                                         \
-        dansandu::ballotin::logging::Level::error, __func__, __FILE__, __LINE__,                                       \
-        [&]() { return dansandu::ballotin::string::format(__VA_ARGS__); });
+    dansandu::ballotin::logging::Logger::globalInstance().log(dansandu::ballotin::logging::Level::error, __func__,     \
+                                                              __FILE__, __LINE__,                                      \
+                                                              dansandu::ballotin::string::format(__VA_ARGS__));
 #else
 #define LOG_ERROR(...) ;
 #endif
 
 #if (PRALINE_LOGGING_LEVEL >= 2)
 #define LOG_WARN(...)                                                                                                  \
-    dansandu::ballotin::logging::Logger::globalInstance().log(                                                         \
-        dansandu::ballotin::logging::Level::warn, __func__, __FILE__, __LINE__,                                        \
-        [&]() { return dansandu::ballotin::string::format(__VA_ARGS__); });
+    dansandu::ballotin::logging::Logger::globalInstance().log(dansandu::ballotin::logging::Level::warn, __func__,      \
+                                                              __FILE__, __LINE__,                                      \
+                                                              dansandu::ballotin::string::format(__VA_ARGS__));
 #else
 #define LOG_WARN(...) ;
 #endif
 
 #if (PRALINE_LOGGING_LEVEL >= 3)
 #define LOG_INFO(...)                                                                                                  \
-    dansandu::ballotin::logging::Logger::globalInstance().log(                                                         \
-        dansandu::ballotin::logging::Level::info, __func__, __FILE__, __LINE__,                                        \
-        [&]() { return dansandu::ballotin::string::format(__VA_ARGS__); });
+    dansandu::ballotin::logging::Logger::globalInstance().log(dansandu::ballotin::logging::Level::info, __func__,      \
+                                                              __FILE__, __LINE__,                                      \
+                                                              dansandu::ballotin::string::format(__VA_ARGS__));
 #else
 #define LOG_INFO(...) ;
 #endif
 
 #if (PRALINE_LOGGING_LEVEL >= 4)
 #define LOG_DEBUG(...)                                                                                                 \
-    dansandu::ballotin::logging::Logger::globalInstance().log(                                                         \
-        dansandu::ballotin::logging::Level::debug, __func__, __FILE__, __LINE__,                                       \
-        [&]() { return dansandu::ballotin::string::format(__VA_ARGS__); });
+    dansandu::ballotin::logging::Logger::globalInstance().log(dansandu::ballotin::logging::Level::debug, __func__,     \
+                                                              __FILE__, __LINE__,                                      \
+                                                              dansandu::ballotin::string::format(__VA_ARGS__));
 #else
 #define LOG_DEBUG(...) ;
 #endif
