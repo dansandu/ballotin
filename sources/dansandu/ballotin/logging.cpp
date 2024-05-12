@@ -103,12 +103,14 @@ struct UnitTestsHandlerImplementation
     }
 
     UnitTestsHandlerImplementation(const char* const filePath)
-        : logFile{filePath, std::ios_base::out | std::ios_base::app}
+        : logFile{filePath, std::ios_base::out | std::ios_base::app}, errorsLogged{false}, warningsLogged{false}
     {
     }
 
     std::ofstream logFile;
-    std::mutex mutex;
+    bool errorsLogged;
+    bool warningsLogged;
+    mutable std::mutex mutex;
 };
 
 UnitTestsHandler::UnitTestsHandler(const char* const filePath)
@@ -124,7 +126,29 @@ void UnitTestsHandler::operator()(const LogEntry& logEntry)
     const auto casted = static_cast<UnitTestsHandlerImplementation*>(implementation_.get());
 
     const auto lock = std::lock_guard<std::mutex>{casted->mutex};
+    if (logEntry.level == Level::error)
+    {
+        casted->errorsLogged = true;
+    }
+    if (logEntry.level == Level::warn)
+    {
+        casted->warningsLogged = true;
+    }
     casted->logFile << stream.rdbuf();
+}
+
+bool UnitTestsHandler::errorsLogged() const
+{
+    const auto casted = static_cast<UnitTestsHandlerImplementation*>(implementation_.get());
+    const auto lock = std::lock_guard<std::mutex>{casted->mutex};
+    return casted->errorsLogged;
+}
+
+bool UnitTestsHandler::warningsLogged() const
+{
+    const auto casted = static_cast<UnitTestsHandlerImplementation*>(implementation_.get());
+    const auto lock = std::lock_guard<std::mutex>{casted->mutex};
+    return casted->warningsLogged;
 }
 
 }

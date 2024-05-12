@@ -100,6 +100,10 @@ public:
 
     void operator()(const LogEntry& logEntry);
 
+    bool errorsLogged() const;
+
+    bool warningsLogged() const;
+
 private:
     std::shared_ptr<void> implementation_;
 };
