@@ -43,18 +43,32 @@ std::vector<uint8_t> readBinaryFile(const std::string& path)
     return bytes;
 }
 
+static auto standardOutputMutex = std::mutex{};
+
+static auto standardErrorMutex = std::mutex{};
+
 void writeToStandardOutput(const std::string_view string)
 {
-    static auto mutex = std::mutex{};
-    auto lock = std::lock_guard<std::mutex>{mutex};
+    const auto lock = std::lock_guard<std::mutex>{standardOutputMutex};
     std::cout << string;
 }
 
 void writeToStandardError(const std::string_view string)
 {
-    static auto mutex = std::mutex{};
-    auto lock = std::lock_guard<std::mutex>{mutex};
+    const auto lock = std::lock_guard<std::mutex>{standardErrorMutex};
     std::cerr << string;
+}
+
+void writeToStandardOutput(const std::wstring_view string)
+{
+    const auto lock = std::lock_guard<std::mutex>{standardOutputMutex};
+    std::wcout << string;
+}
+
+void writeToStandardError(const std::wstring_view string)
+{
+    const auto lock = std::lock_guard<std::mutex>{standardErrorMutex};
+    std::wcerr << string;
 }
 
 }

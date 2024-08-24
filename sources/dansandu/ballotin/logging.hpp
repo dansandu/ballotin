@@ -23,24 +23,9 @@ enum class Level
     debug
 };
 
-constexpr bool operator<(const Level left, const Level right)
+constexpr auto operator<=>(const Level left, const Level right)
 {
-    return static_cast<int>(left) < static_cast<int>(right);
-}
-
-constexpr bool operator>(const Level left, const Level right)
-{
-    return right < left;
-}
-
-constexpr bool operator<=(const Level left, const Level right)
-{
-    return !(right < left);
-}
-
-constexpr bool operator>=(const Level left, const Level right)
-{
-    return !(left < right);
+    return static_cast<int>(left) <=> static_cast<int>(right);
 }
 
 constexpr const char* levelToString(const Level level)
@@ -51,13 +36,13 @@ constexpr const char* levelToString(const Level level)
 
 struct LogEntry
 {
-    std::string_view timestamp;
+    std::string timestamp;
     Level level;
     std::thread::id threadId;
     const char* function;
     const char* file;
     int line;
-    std::string_view message;
+    std::wstring_view message;
 };
 
 class PRALINE_EXPORT Logger
@@ -67,21 +52,21 @@ public:
 
     Logger();
 
-    void addHandler(std::string name, const Level level, std::function<void(const LogEntry&)> handler);
+    void addHandler(std::wstring name, const Level level, std::function<void(const LogEntry&)> handler);
 
-    void removeHandler(const std::string_view name);
+    void removeHandler(const std::wstring_view name);
 
     void setLevel(const Level level);
 
     Level getLevel() const;
 
     void log(const Level level, const char* const function, const char* const file, const int line,
-             const std::string_view message) const;
+             const std::wstring_view message) const;
 
 private:
     struct Handler
     {
-        std::string name;
+        std::wstring name;
         Level level;
         std::function<void(const LogEntry&)> callback;
     };
@@ -114,7 +99,7 @@ private:
 #define LOG_ERROR(...)                                                                                                 \
     dansandu::ballotin::logging::Logger::globalInstance().log(dansandu::ballotin::logging::Level::error, __func__,     \
                                                               __FILE__, __LINE__,                                      \
-                                                              dansandu::ballotin::string::format(__VA_ARGS__));
+                                                              dansandu::ballotin::string::wformat(__VA_ARGS__));
 #else
 #define LOG_ERROR(...) ;
 #endif
@@ -123,7 +108,7 @@ private:
 #define LOG_WARN(...)                                                                                                  \
     dansandu::ballotin::logging::Logger::globalInstance().log(dansandu::ballotin::logging::Level::warn, __func__,      \
                                                               __FILE__, __LINE__,                                      \
-                                                              dansandu::ballotin::string::format(__VA_ARGS__));
+                                                              dansandu::ballotin::string::wformat(__VA_ARGS__));
 #else
 #define LOG_WARN(...) ;
 #endif
@@ -132,7 +117,7 @@ private:
 #define LOG_INFO(...)                                                                                                  \
     dansandu::ballotin::logging::Logger::globalInstance().log(dansandu::ballotin::logging::Level::info, __func__,      \
                                                               __FILE__, __LINE__,                                      \
-                                                              dansandu::ballotin::string::format(__VA_ARGS__));
+                                                              dansandu::ballotin::string::wformat(__VA_ARGS__));
 #else
 #define LOG_INFO(...) ;
 #endif
@@ -141,7 +126,7 @@ private:
 #define LOG_DEBUG(...)                                                                                                 \
     dansandu::ballotin::logging::Logger::globalInstance().log(dansandu::ballotin::logging::Level::debug, __func__,     \
                                                               __FILE__, __LINE__,                                      \
-                                                              dansandu::ballotin::string::format(__VA_ARGS__));
+                                                              dansandu::ballotin::string::wformat(__VA_ARGS__));
 #else
 #define LOG_DEBUG(...) ;
 #endif

@@ -8,6 +8,7 @@ using dansandu::ballotin::string::format;
 using dansandu::ballotin::string::join;
 using dansandu::ballotin::string::split;
 using dansandu::ballotin::string::trim;
+using dansandu::ballotin::string::wformat;
 
 TEST_CASE("string")
 {
@@ -43,6 +44,13 @@ TEST_CASE("string")
         REQUIRE(format(2, " + ", 3, " = ", 5) == "2 + 3 = 5");
 
         REQUIRE(format("The ", "cat", " jumped the ", "fence", " twice") == "The cat jumped the fence twice");
+    }
+
+    SECTION("wformat")
+    {
+        REQUIRE(wformat(2, " + ", 3, L" = ", 5) == L"2 + 3 = 5");
+
+        REQUIRE(wformat("The ", L"cat", " jumped the ", L"fence", " twice") == L"The cat jumped the fence twice");
     }
 
     SECTION("split")

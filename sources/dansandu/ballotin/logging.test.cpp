@@ -11,6 +11,23 @@ using dansandu::ballotin::logging::Logger;
 
 TEST_CASE("logging")
 {
+    SECTION("level comparison")
+    {
+        STATIC_REQUIRE(Level::none < Level::error);
+
+        STATIC_REQUIRE(Level::error < Level::warn);
+
+        STATIC_REQUIRE(Level::warn < Level::info);
+
+        STATIC_REQUIRE(Level::info < Level::debug);
+
+        STATIC_REQUIRE(Level::debug == Level::debug);
+
+        STATIC_REQUIRE(Level::info != Level::debug);
+
+        STATIC_REQUIRE(Level::debug >= Level::info);
+    }
+
     auto logger = Logger{};
 
     SECTION("level matching")
@@ -19,11 +36,11 @@ TEST_CASE("logging")
         const auto expectedFile = "file";
         const auto expectedLine = 17;
         const auto expectedLevel = Level::debug;
-        const auto expectedMessage = "message";
+        const auto expectedMessage = L"message";
 
         auto logged = false;
 
-        logger.addHandler("test", Level::debug,
+        logger.addHandler(L"test", Level::debug,
                           [&](const LogEntry& logEntry)
                           {
                               REQUIRE(logEntry.function == expectedFunction);
@@ -48,16 +65,16 @@ TEST_CASE("logging")
     {
         auto logged = false;
 
-        logger.addHandler("test", Level::info, [&](const LogEntry&) { logged = true; });
+        logger.addHandler(L"test", Level::info, [&](const LogEntry&) { logged = true; });
 
-        logger.log(Level::debug, "function", "file", 3, "message");
+        logger.log(Level::debug, "function", "file", 3, L"message");
 
         REQUIRE(!logged);
     }
 
     SECTION("duplicate handler")
     {
-        const auto name = "default";
+        const auto name = L"default";
         const auto level = Level::debug;
         const auto handler = [&](const LogEntry&) {};
 
@@ -70,11 +87,13 @@ TEST_CASE("logging")
     {
         auto logged = false;
 
-        logger.addHandler("test", Level::error, [&](const LogEntry&) { logged = true; });
+        const auto name = L"test";
 
-        logger.removeHandler("test");
+        logger.addHandler(name, Level::error, [&](const LogEntry&) { logged = true; });
 
-        logger.log(Level::error, "function", "file", 3, "message");
+        logger.removeHandler(name);
+
+        logger.log(Level::error, "function", "file", 3, L"message");
 
         REQUIRE(!logged);
     }

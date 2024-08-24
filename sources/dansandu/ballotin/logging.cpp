@@ -10,6 +10,7 @@
 using dansandu::ballotin::date_time::getDateTime;
 using dansandu::ballotin::file_system::writeToStandardError;
 using dansandu::ballotin::file_system::writeToStandardOutput;
+using dansandu::ballotin::string::wformat;
 
 namespace dansandu::ballotin::logging
 {
@@ -24,7 +25,7 @@ Logger::Logger() : level_{Level::debug}
 {
 }
 
-void Logger::addHandler(std::string name, const Level level, std::function<void(const LogEntry&)> handler)
+void Logger::addHandler(std::wstring name, const Level level, std::function<void(const LogEntry&)> handler)
 {
     const auto lock = std::lock_guard<std::mutex>{mutex_};
     if (std::find_if(handlers_.cbegin(), handlers_.cend(),
@@ -34,11 +35,11 @@ void Logger::addHandler(std::string name, const Level level, std::function<void(
     }
     else
     {
-        THROW(std::logic_error, "the handler named '", name, "' is already registered");
+        THROW(std::logic_error, "a handler with the same name is already registered");
     }
 }
 
-void Logger::removeHandler(const std::string_view name)
+void Logger::removeHandler(const std::wstring_view name)
 {
     const auto lock = std::lock_guard<std::mutex>{mutex_};
     if (const auto position = std::find_if(handlers_.cbegin(), handlers_.cend(),
@@ -60,12 +61,11 @@ Level Logger::getLevel() const
 }
 
 void Logger::log(const Level level, const char* const function, const char* const file, const int line,
-                 const std::string_view message) const
+                 const std::wstring_view message) const
 {
     if (level <= getLevel())
     {
-        const auto timestamp = getDateTime();
-        const auto logEntry = LogEntry{timestamp, level, std::this_thread::get_id(), function, file, line, message};
+        const auto logEntry = LogEntry{getDateTime(), level, std::this_thread::get_id(), function, file, line, message};
 
         const auto lock = std::lock_guard<std::mutex>{mutex_};
         for (const auto& handler : handlers_)
@@ -80,18 +80,15 @@ void Logger::log(const Level level, const char* const function, const char* cons
 
 void standardOutputHandler(const LogEntry& logEntry)
 {
-    auto stream = std::stringstream{};
-    stream << logEntry.timestamp << " " << levelToString(logEntry.level) << " " << logEntry.threadId << " "
-           << logEntry.file << ":" << logEntry.line << " " << logEntry.message << std::endl;
-    const auto string = stream.str();
-
+    const auto message = wformat(logEntry.timestamp, ' ', levelToString(logEntry.level), ' ', logEntry.threadId, ' ',
+                                 logEntry.file, ':', logEntry.line, ' ', logEntry.message, '\n');
     if (logEntry.level <= Level::warn)
     {
-        writeToStandardOutput(string);
+        writeToStandardOutput(message);
     }
     else
     {
-        writeToStandardError(string);
+        writeToStandardError(message);
     }
 }
 
@@ -107,7 +104,7 @@ struct UnitTestsHandlerImplementation
     {
     }
 
-    std::ofstream logFile;
+    std::wofstream logFile;
     bool errorsLogged;
     bool warningsLogged;
     mutable std::mutex mutex;
@@ -120,9 +117,9 @@ UnitTestsHandler::UnitTestsHandler(const char* const filePath)
 
 void UnitTestsHandler::operator()(const LogEntry& logEntry)
 {
-    auto stream = std::stringstream{};
-    stream << logEntry.timestamp << " " << levelToString(logEntry.level) << " " << logEntry.threadId << " "
-           << logEntry.file << ":" << logEntry.line << " " << logEntry.message << std::endl;
+    const auto message = wformat(logEntry.timestamp, ' ', levelToString(logEntry.level), ' ', logEntry.threadId, ' ',
+                                 logEntry.file, ':', logEntry.line, ' ', logEntry.message, '\n');
+
     const auto casted = static_cast<UnitTestsHandlerImplementation*>(implementation_.get());
 
     const auto lock = std::lock_guard<std::mutex>{casted->mutex};
@@ -134,7 +131,7 @@ void UnitTestsHandler::operator()(const LogEntry& logEntry)
     {
         casted->warningsLogged = true;
     }
-    casted->logFile << stream.rdbuf();
+    casted->logFile << message;
 }
 
 bool UnitTestsHandler::errorsLogged() const
