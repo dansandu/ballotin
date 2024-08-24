@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <vector>
 
 namespace dansandu::ballotin::string
@@ -22,10 +23,33 @@ auto join(const Iterable& iterable, const std::string_view separator)
 }
 
 template<typename... Arguments>
-auto format(Arguments&&... arguments)
+auto format(const Arguments&... arguments)
 {
     auto stream = std::stringstream{};
     (stream << ... << arguments);
+    return stream.str();
+}
+
+template<typename... Arguments>
+auto wformat(const Arguments&... arguments)
+{
+    auto stream = std::wstringstream{};
+    auto streamWriter = [&stream]<typename T>(const T& argument)
+    {
+        if constexpr (std::is_same_v<std::decay_t<T>, std::string>)
+        {
+            stream << argument.c_str();
+        }
+        else if constexpr (std::is_same_v<std::decay_t<T>, std::string_view>)
+        {
+            stream.write(argument.begin(), argument.end() - argument.begin());
+        }
+        else
+        {
+            stream << argument;
+        }
+    };
+    (streamWriter(arguments), ...);
     return stream.str();
 }
 
