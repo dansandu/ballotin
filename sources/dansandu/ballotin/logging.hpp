@@ -9,6 +9,7 @@
 #include <string>
 #include <string_view>
 #include <thread>
+#include <type_traits>
 #include <vector>
 
 namespace dansandu::ballotin::logging
@@ -25,7 +26,7 @@ enum class Level
 
 constexpr auto operator<=>(const Level left, const Level right)
 {
-    return static_cast<int>(left) <=> static_cast<int>(right);
+    return static_cast<std::underlying_type_t<Level>>(left) <=> static_cast<std::underlying_type_t<Level>>(right);
 }
 
 constexpr const char* levelToString(const Level level)
