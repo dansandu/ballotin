@@ -5,6 +5,6 @@
 namespace dansandu::ballotin::date_time
 {
 
-std::string getDateTime();
+PRALINE_EXPORT std::string getLocalDateTime();
 
 }
