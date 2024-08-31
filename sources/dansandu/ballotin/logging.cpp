@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <fstream>
 
-using dansandu::ballotin::date_time::getDateTime;
+using dansandu::ballotin::date_time::getLocalDateTime;
 using dansandu::ballotin::file_system::writeToStandardError;
 using dansandu::ballotin::file_system::writeToStandardOutput;
 using dansandu::ballotin::string::wformat;
@@ -65,7 +65,8 @@ void Logger::log(const Level level, const char* const function, const char* cons
 {
     if (level <= getLevel())
     {
-        const auto logEntry = LogEntry{getDateTime(), level, std::this_thread::get_id(), function, file, line, message};
+        const auto logEntry =
+            LogEntry{getLocalDateTime(), level, std::this_thread::get_id(), function, file, line, message};
 
         const auto lock = std::lock_guard<std::mutex>{mutex_};
         for (const auto& handler : handlers_)

@@ -1,26 +1,25 @@
 #include "dansandu/ballotin/date_time.hpp"
 
-#include <chrono>
 #include <ctime>
 
 namespace dansandu::ballotin::date_time
 {
 
-std::string getDateTime()
+std::string getLocalDateTime()
 {
-    auto t = time_t{};
-    time(&t);
+    auto timeInput = time_t{};
+    time(&timeInput);
 
-    auto tt = tm{};
+    auto timeOutput = tm{};
 
 #ifdef _WIN32
-    gmtime_s(&tt, &t);
+    localtime_s(&timeOutput, &timeInput);
 #else
-    gmtime_r(&t, &tt);
+    localtime_s(&timeInput, &timeOutput);
 #endif
 
     char buffer[64];
-    strftime(buffer, sizeof(buffer) / sizeof(*buffer), "%Y-%m-%d %H:%M:%S%z", &tt);
+    strftime(buffer, sizeof(buffer) / sizeof(*buffer), "%Y-%m-%d %H:%M:%S%z", &timeOutput);
 
     return buffer;
 }
