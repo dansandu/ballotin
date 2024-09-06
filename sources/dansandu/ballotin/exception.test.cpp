@@ -10,6 +10,7 @@ TEST_CASE("exception")
     SECTION("pretty throw")
     {
         std::string message;
+
         try
         {
             THROW(std::invalid_argument, "ouch -- ", 1, " exception has been thrown");
@@ -19,6 +20,6 @@ TEST_CASE("exception")
             message = ex.what();
         }
 
-        REQUIRE(!message.empty());
+        REQUIRE(message.contains("ouch -- 1 exception has been thrown"));
     }
 }

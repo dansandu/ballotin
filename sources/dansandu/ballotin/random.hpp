@@ -8,7 +8,7 @@ class PredictableBitGenerator
 public:
     using result_type = unsigned;
 
-    PredictableBitGenerator(result_type seed = 0U) : index_{seed % (max() + 1U)}
+    explicit PredictableBitGenerator(result_type seed = 0U) : index_{seed % (max() + 1U)}
     {
     }
 
