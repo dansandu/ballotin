@@ -153,7 +153,7 @@ void UnitTestsHandler::operator()(const LogEntry& logEntry)
     const auto casted = static_cast<UnitTestsHandlerImplementation*>(implementation_.get());
 
     const auto lock = std::lock_guard<std::mutex>{casted->mutex};
-    if (logEntry.level == Level::error)
+    if (logEntry.level == Level::error || logEntry.level == Level::critical)
     {
         casted->errorsLogged = true;
     }

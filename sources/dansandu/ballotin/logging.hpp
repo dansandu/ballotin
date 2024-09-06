@@ -92,7 +92,7 @@ struct LogCritical
     explicit LogCritical(const Arguments&... arguments,
                          const std::source_location location = std::source_location::current())
     {
-        globalInstance().log(Level::critical, dansandu::ballotin::string::wformat(arguments...), location);
+        Logger::globalInstance().log(Level::critical, dansandu::ballotin::string::wformat(arguments...), location);
     }
 };
 
