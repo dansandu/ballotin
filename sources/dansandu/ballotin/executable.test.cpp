@@ -8,10 +8,9 @@
 
 using dansandu::ballotin::environment::getEnvironmentVariable;
 using dansandu::ballotin::file_system::writeToStandardOutput;
-using dansandu::ballotin::logging::Level;
-using dansandu::ballotin::logging::Logger;
-using dansandu::ballotin::logging::UnitTestsHandler;
 using dansandu::ballotin::progress_bar::ProgressBar;
+
+using namespace dansandu::ballotin::logging;
 
 class ProgressBarListener : public Catch::TestEventListenerBase
 {
@@ -50,13 +49,13 @@ public:
     void testCaseStarting(Catch::TestCaseInfo const& testInfo) override
     {
         progressBar_->updateSummary(testInfo.name);
-        LOG_INFO("Starting test case '", testInfo.name, "'");
+        LogInfo("Starting test case '", testInfo.name, "'");
     }
 
     void testCaseEnded(Catch::TestCaseStats const& testCaseStats) override
     {
         progressBar_->advance();
-        LOG_INFO("Ending test case '", testCaseStats.testInfo.name, "'");
+        LogInfo("Ending test case '", testCaseStats.testInfo.name, "'");
     }
 
     void testGroupEnded(Catch::TestGroupStats const& testGroupStats) override

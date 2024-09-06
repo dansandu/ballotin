@@ -15,6 +15,27 @@ using dansandu::ballotin::string::wformat;
 namespace dansandu::ballotin::logging
 {
 
+const char* toString(const Level level)
+{
+    switch (level)
+    {
+    case Level::none:
+        return "NONE";
+    case Level::critical:
+        return "CRITICAL";
+    case Level::error:
+        return "ERROR";
+    case Level::warn:
+        return "WARN";
+    case Level::info:
+        return "INFO";
+    case Level::debug:
+        return "DEBUG";
+    default:
+        THROW(std::logic_error, "Unknown logging level");
+    }
+}
+
 Logger& Logger::globalInstance()
 {
     static auto logger = Logger{};
@@ -52,23 +73,30 @@ void Logger::removeHandler(const std::wstring_view name)
 
 void Logger::setLevel(const Level level)
 {
-    level_.store(level);
+    const auto lock = std::lock_guard<std::mutex>{mutex_};
+    level_ = level;
 }
 
 Level Logger::getLevel() const
 {
-    return level_.load();
+    const auto lock = std::lock_guard<std::mutex>{mutex_};
+    return level_;
 }
 
-void Logger::log(const Level level, const char* const function, const char* const file, const int line,
-                 const std::wstring_view message) const
+void Logger::log(const Level level, const std::wstring_view message, const std::source_location location) const
 {
-    if (level <= getLevel())
+    const auto lock = std::lock_guard<std::mutex>{mutex_};
+    if (level != Level::none && level <= level_)
     {
-        const auto logEntry =
-            LogEntry{getLocalDateTime(), level, std::this_thread::get_id(), function, file, line, message};
+        const auto logEntry = LogEntry{.timestamp = getLocalDateTime(),
+                                       .level = level,
+                                       .threadId = std::this_thread::get_id(),
+                                       .function = location.function_name(),
+                                       .file = location.file_name(),
+                                       .line = static_cast<int>(location.line()),
+                                       .column = static_cast<int>(location.column()),
+                                       .message = message};
 
-        const auto lock = std::lock_guard<std::mutex>{mutex_};
         for (const auto& handler : handlers_)
         {
             if (logEntry.level <= handler.level)
@@ -81,15 +109,16 @@ void Logger::log(const Level level, const char* const function, const char* cons
 
 void standardOutputHandler(const LogEntry& logEntry)
 {
-    const auto message = wformat(logEntry.timestamp, ' ', levelToString(logEntry.level), ' ', logEntry.threadId, ' ',
+    const auto message = wformat(logEntry.timestamp, ' ', toString(logEntry.level), ' ', logEntry.threadId, ' ',
                                  logEntry.file, ':', logEntry.line, ' ', logEntry.message, '\n');
-    if (logEntry.level <= Level::warn)
+
+    if (logEntry.level < Level::warn)
     {
-        writeToStandardOutput(message);
+        writeToStandardError(message);
     }
     else
     {
-        writeToStandardError(message);
+        writeToStandardOutput(message);
     }
 }
 
@@ -118,7 +147,7 @@ UnitTestsHandler::UnitTestsHandler(const char* const filePath)
 
 void UnitTestsHandler::operator()(const LogEntry& logEntry)
 {
-    const auto message = wformat(logEntry.timestamp, ' ', levelToString(logEntry.level), ' ', logEntry.threadId, ' ',
+    const auto message = wformat(logEntry.timestamp, ' ', toString(logEntry.level), ' ', logEntry.threadId, ' ',
                                  logEntry.file, ':', logEntry.line, ' ', logEntry.message, '\n');
 
     const auto casted = static_cast<UnitTestsHandlerImplementation*>(implementation_.get());

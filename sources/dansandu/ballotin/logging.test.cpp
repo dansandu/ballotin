@@ -9,11 +9,21 @@ using dansandu::ballotin::logging::Level;
 using dansandu::ballotin::logging::LogEntry;
 using dansandu::ballotin::logging::Logger;
 
+static void testLog(Logger& logger, const Level expectedLevel, const std::wstring_view expectedMessage,
+                    std::function<void(const LogEntry&)> handler)
+{
+    logger.addHandler(L"test", Level::debug, std::move(handler));
+
+    logger.log(expectedLevel, expectedMessage);
+}
+
 TEST_CASE("logging")
 {
     SECTION("level comparison")
     {
-        STATIC_REQUIRE(Level::none < Level::error);
+        STATIC_REQUIRE(Level::none < Level::critical);
+
+        STATIC_REQUIRE(Level::critical < Level::error);
 
         STATIC_REQUIRE(Level::error < Level::warn);
 
@@ -32,31 +42,26 @@ TEST_CASE("logging")
 
     SECTION("level matching")
     {
-        const auto expectedFunction = "function";
-        const auto expectedFile = "file";
         const auto expectedLine = 17;
+        const auto expectedColumn = 5;
         const auto expectedLevel = Level::debug;
         const auto expectedMessage = L"message";
 
         auto logged = false;
 
-        logger.addHandler(L"test", Level::debug,
-                          [&](const LogEntry& logEntry)
-                          {
-                              REQUIRE(logEntry.function == expectedFunction);
+        testLog(logger, expectedLevel, expectedMessage,
+                [&](const LogEntry& logEntry)
+                {
+                    CHECK(logEntry.line == expectedLine);
 
-                              REQUIRE(logEntry.file == expectedFile);
+                    CHECK(logEntry.column == expectedColumn);
 
-                              REQUIRE(logEntry.line == expectedLine);
+                    CHECK(logEntry.level == expectedLevel);
 
-                              REQUIRE(logEntry.level == expectedLevel);
+                    CHECK(logEntry.message == expectedMessage);
 
-                              REQUIRE(logEntry.message == expectedMessage);
-
-                              logged = true;
-                          });
-
-        logger.log(expectedLevel, expectedFunction, expectedFile, expectedLine, expectedMessage);
+                    logged = true;
+                });
 
         REQUIRE(logged);
     }
@@ -67,7 +72,7 @@ TEST_CASE("logging")
 
         logger.addHandler(L"test", Level::info, [&](const LogEntry&) { logged = true; });
 
-        logger.log(Level::debug, "function", "file", 3, L"message");
+        logger.log(Level::debug, L"message");
 
         REQUIRE(!logged);
     }
@@ -93,7 +98,7 @@ TEST_CASE("logging")
 
         logger.removeHandler(name);
 
-        logger.log(Level::error, "function", "file", 3, L"message");
+        logger.log(Level::error, L"message");
 
         REQUIRE(!logged);
     }
