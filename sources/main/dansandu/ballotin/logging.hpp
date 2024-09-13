@@ -69,14 +69,16 @@ private:
     mutable std::mutex mutex_;
 };
 
-PRALINE_EXPORT void standardOutputHandler(const LogEntry& logEntry);
+PRALINE_EXPORT void standardOutputLogHandler(const LogEntry& logEntry);
 
-class PRALINE_EXPORT UnitTestsHandler
+class PRALINE_EXPORT LogFileHandler
 {
 public:
-    explicit UnitTestsHandler(const char* const filePath);
+    explicit LogFileHandler(const char* const filePath);
 
-    void operator()(const LogEntry& logEntry);
+    void operator()(const LogEntry& logEntry) const;
+
+    bool criticalsLogged() const;
 
     bool errorsLogged() const;
 

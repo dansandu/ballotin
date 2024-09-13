@@ -107,7 +107,7 @@ void Logger::log(const Level level, const std::wstring_view message, const std::
     }
 }
 
-void standardOutputHandler(const LogEntry& logEntry)
+void standardOutputLogHandler(const LogEntry& logEntry)
 {
     const auto message = wformat(logEntry.timestamp, ' ', toString(logEntry.level), ' ', logEntry.threadId, ' ',
                                  logEntry.file, ':', logEntry.line, ' ', logEntry.message, '\n');
@@ -122,60 +122,70 @@ void standardOutputHandler(const LogEntry& logEntry)
     }
 }
 
-struct UnitTestsHandlerImplementation
+struct LogFileHandlerImplementation
 {
-    static void deleter(void* pointer)
-    {
-        delete static_cast<UnitTestsHandlerImplementation*>(pointer);
-    }
-
-    UnitTestsHandlerImplementation(const char* const filePath)
-        : logFile{filePath, std::ios_base::out | std::ios_base::app}, errorsLogged{false}, warningsLogged{false}
+    explicit LogFileHandlerImplementation(const char* const filePath)
+        : logFile{filePath, std::ios_base::out | std::ios_base::app},
+          criticalsLogged{false},
+          errorsLogged{false},
+          warningsLogged{false}
     {
     }
 
     std::wofstream logFile;
+    bool criticalsLogged;
     bool errorsLogged;
     bool warningsLogged;
     mutable std::mutex mutex;
 };
 
-UnitTestsHandler::UnitTestsHandler(const char* const filePath)
-    : implementation_{new UnitTestsHandlerImplementation{filePath}, UnitTestsHandlerImplementation::deleter}
+LogFileHandler::LogFileHandler(const char* const filePath)
+    : implementation_{std::make_shared<LogFileHandlerImplementation>(filePath)}
 {
 }
 
-void UnitTestsHandler::operator()(const LogEntry& logEntry)
+void LogFileHandler::operator()(const LogEntry& logEntry) const
 {
     const auto message = wformat(logEntry.timestamp, ' ', toString(logEntry.level), ' ', logEntry.threadId, ' ',
                                  logEntry.file, ':', logEntry.line, ' ', logEntry.message, '\n');
 
-    const auto casted = static_cast<UnitTestsHandlerImplementation*>(implementation_.get());
+    const auto impl = static_cast<LogFileHandlerImplementation*>(implementation_.get());
 
-    const auto lock = std::lock_guard<std::mutex>{casted->mutex};
-    if (logEntry.level == Level::error || logEntry.level == Level::critical)
+    const auto lock = std::lock_guard<std::mutex>{impl->mutex};
+    switch (logEntry.level)
     {
-        casted->errorsLogged = true;
+    case Level::critical:
+        impl->criticalsLogged = true;
+    case Level::error:
+        impl->errorsLogged = true;
+    case Level::warn:
+        impl->warningsLogged = true;
+    default:
+        break;
     }
-    if (logEntry.level == Level::warn)
-    {
-        casted->warningsLogged = true;
-    }
-    casted->logFile << message;
+
+    impl->logFile << message;
 }
 
-bool UnitTestsHandler::errorsLogged() const
+bool LogFileHandler::criticalsLogged() const
 {
-    const auto casted = static_cast<UnitTestsHandlerImplementation*>(implementation_.get());
-    const auto lock = std::lock_guard<std::mutex>{casted->mutex};
-    return casted->errorsLogged;
+    const auto impl = static_cast<LogFileHandlerImplementation*>(implementation_.get());
+    const auto lock = std::lock_guard<std::mutex>{impl->mutex};
+    return impl->criticalsLogged;
 }
 
-bool UnitTestsHandler::warningsLogged() const
+bool LogFileHandler::errorsLogged() const
 {
-    const auto casted = static_cast<UnitTestsHandlerImplementation*>(implementation_.get());
-    const auto lock = std::lock_guard<std::mutex>{casted->mutex};
-    return casted->warningsLogged;
+    const auto impl = static_cast<LogFileHandlerImplementation*>(implementation_.get());
+    const auto lock = std::lock_guard<std::mutex>{impl->mutex};
+    return impl->errorsLogged;
+}
+
+bool LogFileHandler::warningsLogged() const
+{
+    const auto impl = static_cast<LogFileHandlerImplementation*>(implementation_.get());
+    const auto lock = std::lock_guard<std::mutex>{impl->mutex};
+    return impl->warningsLogged;
 }
 
 }

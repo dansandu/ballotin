@@ -14,14 +14,11 @@ void writeBinaryFile(const std::string& path, const std::vector<uint8_t>& bytes)
 {
     auto file = std::ofstream{path, std::ios_base::binary};
     file << std::noskipws;
-    for (auto byte : bytes)
+    file.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+    if (!file)
     {
-        if (!(file << byte))
-        {
-            THROW(std::runtime_error, "could not write bytes to file '", path, "'");
-        }
+        THROW(std::runtime_error, "could not write bytes to file '", path, "'");
     }
-    file.close();
 }
 
 std::vector<uint8_t> readBinaryFile(const std::string& path)
@@ -45,18 +42,10 @@ std::vector<uint8_t> readBinaryFile(const std::string& path)
 
 static auto standardOutputMutex = std::mutex{};
 
-static auto standardErrorMutex = std::mutex{};
-
 void writeToStandardOutput(const std::string_view string)
 {
     const auto lock = std::lock_guard<std::mutex>{standardOutputMutex};
     std::cout << string;
-}
-
-void writeToStandardError(const std::string_view string)
-{
-    const auto lock = std::lock_guard<std::mutex>{standardErrorMutex};
-    std::cerr << string;
 }
 
 void writeToStandardOutput(const std::wstring_view string)
@@ -65,9 +54,15 @@ void writeToStandardOutput(const std::wstring_view string)
     std::wcout << string;
 }
 
+void writeToStandardError(const std::string_view string)
+{
+    const auto lock = std::lock_guard<std::mutex>{standardOutputMutex};
+    std::cerr << string;
+}
+
 void writeToStandardError(const std::wstring_view string)
 {
-    const auto lock = std::lock_guard<std::mutex>{standardErrorMutex};
+    const auto lock = std::lock_guard<std::mutex>{standardOutputMutex};
     std::wcerr << string;
 }
 
