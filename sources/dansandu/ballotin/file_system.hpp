@@ -14,9 +14,9 @@ PRALINE_EXPORT std::vector<uint8_t> readBinaryFile(const std::string& path);
 
 PRALINE_EXPORT void writeToStandardOutput(const std::string_view string);
 
-PRALINE_EXPORT void writeToStandardError(const std::string_view string);
-
 PRALINE_EXPORT void writeToStandardOutput(const std::wstring_view string);
+
+PRALINE_EXPORT void writeToStandardError(const std::string_view string);
 
 PRALINE_EXPORT void writeToStandardError(const std::wstring_view string);
 
