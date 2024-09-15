@@ -73,4 +73,14 @@ std::string highlightText(const std::string& text, const TextHighlight textHighl
     }
 }
 
+const char* getFileName(const char* filePath)
+{
+    auto fileName = filePath + std::strlen(filePath);
+    while (fileName != filePath && *(fileName - 1) != '\\' && *(fileName - 1) != '/')
+    {
+        --fileName;
+    }
+    return fileName;
+}
+
 }

@@ -67,4 +67,6 @@ enum class TextHighlight
 
 PRALINE_EXPORT std::string highlightText(const std::string& text, const TextHighlight textHighlight);
 
+PRALINE_EXPORT const char* getFileName(const char* filePath);
+
 }
