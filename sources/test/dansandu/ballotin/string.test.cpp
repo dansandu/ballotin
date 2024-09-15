@@ -5,6 +5,7 @@
 #include <vector>
 
 using dansandu::ballotin::string::format;
+using dansandu::ballotin::string::getFileName;
 using dansandu::ballotin::string::join;
 using dansandu::ballotin::string::split;
 using dansandu::ballotin::string::trim;
@@ -70,5 +71,28 @@ TEST_CASE("string")
         REQUIRE(trim("24f\t\t\t") == "24f");
         REQUIRE(trim("  @ $!\t>  ") == "@ $!\t>");
         REQUIRE(trim("gg") == "gg");
+    }
+
+    SECTION("file name")
+    {
+        REQUIRE(getFileName("") == std::string());
+
+        REQUIRE(getFileName("a") == std::string("a"));
+
+        REQUIRE(getFileName("abc") == std::string("abc"));
+
+        REQUIRE(getFileName("abc.txt") == std::string("abc.txt"));
+
+        REQUIRE(getFileName("path\\to\\file") == std::string("file"));
+
+        REQUIRE(getFileName("path/to/file") == std::string("file"));
+
+        REQUIRE(getFileName("\\file") == std::string("file"));
+
+        REQUIRE(getFileName("/file") == std::string("file"));
+
+        REQUIRE(getFileName("\\") == std::string());
+
+        REQUIRE(getFileName("/") == std::string());
     }
 }

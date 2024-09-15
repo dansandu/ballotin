@@ -10,6 +10,7 @@
 using dansandu::ballotin::date_time::getLocalDateTime;
 using dansandu::ballotin::file_system::writeToStandardError;
 using dansandu::ballotin::file_system::writeToStandardOutput;
+using dansandu::ballotin::string::getFileName;
 using dansandu::ballotin::string::wformat;
 
 namespace dansandu::ballotin::logging
@@ -85,6 +86,8 @@ Level Logger::getLevel() const
 
 void Logger::log(const Level level, const std::wstring_view message, const std::source_location location) const
 {
+    const auto actualFileName = getFileName(location.file_name());
+
     const auto lock = std::lock_guard<std::mutex>{mutex_};
     if (level != Level::none && level <= level_)
     {
@@ -92,7 +95,7 @@ void Logger::log(const Level level, const std::wstring_view message, const std::
                                        .level = level,
                                        .threadId = std::this_thread::get_id(),
                                        .function = location.function_name(),
-                                       .file = location.file_name(),
+                                       .file = actualFileName,
                                        .line = static_cast<int>(location.line()),
                                        .column = static_cast<int>(location.column()),
                                        .message = message};
