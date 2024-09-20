@@ -115,13 +115,14 @@ void standardOutputLogHandler(const LogEntry& logEntry)
     const auto message = wformat(logEntry.timestamp, ' ', toString(logEntry.level), ' ', logEntry.threadId, ' ',
                                  logEntry.file, ':', logEntry.line, ' ', logEntry.message, '\n');
 
+    const auto flush = true;
     if (logEntry.level < Level::warn)
     {
-        writeToStandardError(message);
+        writeToStandardError(message, flush);
     }
     else
     {
-        writeToStandardOutput(message);
+        writeToStandardOutput(message, flush);
     }
 }
 
@@ -168,6 +169,7 @@ void LogFileHandler::operator()(const LogEntry& logEntry) const
     }
 
     impl->logFile << message;
+    impl->logFile.flush();
 }
 
 bool LogFileHandler::criticalsLogged() const
