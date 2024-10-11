@@ -113,7 +113,7 @@ void Logger::log(const Level level, const std::wstring_view message, const std::
 void standardOutputLogHandler(const LogEntry& logEntry)
 {
     const auto message = wformat(logEntry.timestamp, ' ', toString(logEntry.level), ' ', logEntry.threadId, ' ',
-                                 logEntry.file, ':', logEntry.line, ' ', logEntry.message, '\n');
+                                 logEntry.file, '(', logEntry.line, ") ", logEntry.message, '\n');
 
     const auto flush = true;
     if (logEntry.level < Level::warn)
@@ -151,7 +151,7 @@ LogFileHandler::LogFileHandler(const char* const filePath)
 void LogFileHandler::operator()(const LogEntry& logEntry) const
 {
     const auto message = wformat(logEntry.timestamp, ' ', toString(logEntry.level), ' ', logEntry.threadId, ' ',
-                                 logEntry.file, ':', logEntry.line, ' ', logEntry.message, '\n');
+                                 logEntry.file, '(', logEntry.line, ") ", logEntry.message, '\n');
 
     const auto impl = static_cast<LogFileHandlerImplementation*>(implementation_.get());
 
