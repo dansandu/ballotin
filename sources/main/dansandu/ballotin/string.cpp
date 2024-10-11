@@ -37,13 +37,13 @@ std::vector<std::string> split(const std::string_view string, const std::string_
 std::string trim(const std::string_view string)
 {
     auto begin = string.begin();
-    while (begin != string.end() && std::isspace(*begin))
+    while (begin != string.end() && std::isspace(static_cast<unsigned int>(*begin)))
     {
         ++begin;
     }
 
     auto end = string.end();
-    while (end != begin && std::isspace(*(end - 1)))
+    while (end != begin && std::isspace(static_cast<unsigned int>(*(end - 1))))
     {
         --end;
     }
