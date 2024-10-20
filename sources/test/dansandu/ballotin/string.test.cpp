@@ -94,5 +94,7 @@ TEST_CASE("string")
         REQUIRE(getFileName("\\") == std::string());
 
         REQUIRE(getFileName("/") == std::string());
+
+        REQUIRE(getFileName(nullptr) == nullptr);
     }
 }
