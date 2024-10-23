@@ -1,9 +1,7 @@
 #include "dansandu/ballotin/exception.hpp"
-#include "catchorg/catch/catch.hpp"
+#include "dansandu/radiance/radiance.hpp"
 
 #include <stdexcept>
-
-using Catch::Matches;
 
 TEST_CASE("exception")
 {

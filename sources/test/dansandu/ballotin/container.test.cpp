@@ -1,5 +1,5 @@
 #include "dansandu/ballotin/container.hpp"
-#include "catchorg/catch/catch.hpp"
+#include "dansandu/radiance/radiance.hpp"
 
 #include <map>
 #include <sstream>
@@ -41,14 +41,18 @@ TEST_CASE("container")
         {
             uniquePushBack(container, 0);
 
-            REQUIRE(container == std::vector<int>{{1, 3, 5, 7, 0}});
+            const auto expected = std::vector<int>{{1, 3, 5, 7, 0}};
+
+            REQUIRE(container == expected);
         }
 
         SECTION("duplicate")
         {
             uniquePushBack(container, 3);
 
-            REQUIRE(container == std::vector<int>{{1, 3, 5, 7}});
+            const auto expected = std::vector<int>{{1, 3, 5, 7}};
+
+            REQUIRE(container == expected);
         }
     }
 
@@ -59,36 +63,42 @@ TEST_CASE("container")
         SECTION("empty vector")
         {
             stream << std::vector<int>{};
+
             REQUIRE(stream.str() == "[]");
         }
 
         SECTION("singleton vector")
         {
             stream << std::vector<int>{1};
+
             REQUIRE(stream.str() == "[1]");
         }
 
         SECTION("many elements vector")
         {
             stream << std::vector<int>{{1, 2, 3, 4}};
+
             REQUIRE(stream.str() == "[1, 2, 3, 4]");
         }
 
         SECTION("empty map")
         {
             stream << std::map<std::string, int>{};
+
             REQUIRE(stream.str() == "{}");
         }
 
         SECTION("singleton map")
         {
             stream << std::map<std::string, int>{{{"key", 17}}};
+
             REQUIRE(stream.str() == "{key: 17}");
         }
 
         SECTION("many elements map")
         {
             stream << std::map<std::string, int>{{{"key", 17}, {"other", 20}, {"another", 23}}};
+
             REQUIRE(stream.str() == "{another: 23, key: 17, other: 20}");
         }
     }

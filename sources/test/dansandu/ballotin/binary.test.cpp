@@ -1,5 +1,5 @@
 #include "dansandu/ballotin/binary.hpp"
-#include "catchorg/catch/catch.hpp"
+#include "dansandu/radiance/radiance.hpp"
 
 #include <cstdint>
 #include <vector>
@@ -173,7 +173,7 @@ TEST_CASE("binary")
             bytes_type output = {0b10101010};
             auto bitsCount = 9;
 
-            REQUIRE_THROWS_AS(pushBits(output, bitsCount, 0b00110011, 6), std::invalid_argument);
+            REQUIRE_THROW(pushBits(output, bitsCount, 0b00110011, 6), std::invalid_argument);
         }
     }
 }

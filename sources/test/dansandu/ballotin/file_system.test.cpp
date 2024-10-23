@@ -1,7 +1,6 @@
 #include "dansandu/ballotin/file_system.hpp"
-#include "catchorg/catch/catch.hpp"
+#include "dansandu/radiance/radiance.hpp"
 
-using Catch::Matches;
 using dansandu::ballotin::file_system::readBinaryFile;
 using dansandu::ballotin::file_system::writeBinaryFile;
 
@@ -17,6 +16,6 @@ TEST_CASE("file_system")
 
         const auto actual = readBinaryFile(binaryFileName);
 
-        REQUIRE(std::vector<int>(expected.begin(), expected.end()) == std::vector<int>(actual.begin(), actual.end()));
+        REQUIRE(actual == expected);
     }
 }
