@@ -1,5 +1,5 @@
 #include "dansandu/ballotin/random.hpp"
-#include "catchorg/catch/catch.hpp"
+#include "dansandu/radiance/radiance.hpp"
 
 #include <algorithm>
 

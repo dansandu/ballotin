@@ -1,5 +1,5 @@
 #include "dansandu/ballotin/type_traits.hpp"
-#include "catchorg/catch/catch.hpp"
+#include "dansandu/radiance/radiance.hpp"
 
 using dansandu::ballotin::type_traits::TypeDictionary;
 using dansandu::ballotin::type_traits::TypeEntry;

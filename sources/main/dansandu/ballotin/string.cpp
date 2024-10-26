@@ -51,30 +51,13 @@ std::string trim(const std::string_view string)
     return {begin, end};
 }
 
-std::string highlightText(const std::string& text, const TextHighlight textHighlight)
-{
-    if (text.empty())
-    {
-        return text;
-    }
-
-    switch (textHighlight)
-    {
-    case TextHighlight::None:
-        return text;
-    case TextHighlight::Red:
-        return "\033[31m" + text + "\033[0m";
-    case TextHighlight::Green:
-        return "\033[32m" + text + "\033[0m";
-    case TextHighlight::Blue:
-        return "\033[34m" + text + "\033[0m";
-    default:
-        throw std::logic_error{"unkown text highlight"};
-    }
-}
-
 const char* getFileName(const char* filePath)
 {
+    if (!filePath)
+    {
+        return filePath;
+    }
+
     auto fileName = filePath + std::strlen(filePath);
     while (fileName != filePath && *(fileName - 1) != '\\' && *(fileName - 1) != '/')
     {

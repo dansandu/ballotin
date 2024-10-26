@@ -1,6 +1,6 @@
 #include "dansandu/ballotin/string.hpp"
-#include "catchorg/catch/catch.hpp"
 #include "dansandu/ballotin/exception.hpp"
+#include "dansandu/radiance/radiance.hpp"
 
 #include <vector>
 
@@ -18,24 +18,28 @@ TEST_CASE("string")
         SECTION("nonempty separator and list")
         {
             std::vector<int> integers = {1, 2, 3, 4};
+
             REQUIRE(join(integers, ", ") == "1, 2, 3, 4");
         }
 
         SECTION("empty separator and nonempty list")
         {
             std::vector<int> integers = {1, 2, 3, 4};
+
             REQUIRE(join(integers, "") == "1234");
         }
 
         SECTION("nonempty separator and empty list")
         {
             std::vector<int> integers;
+
             REQUIRE(join(integers, "#") == "");
         }
 
         SECTION("empty separator and empty list")
         {
             std::vector<int> integers;
+
             REQUIRE(join(integers, "") == "");
         }
     }
@@ -56,20 +60,52 @@ TEST_CASE("string")
 
     SECTION("split")
     {
-        REQUIRE_THROWS_AS(split("a b c", ""), std::invalid_argument);
-        REQUIRE(split("  a bcd ef ", " ") == std::vector<std::string>{{{"a"}, {"bcd"}, {"ef"}}});
-        REQUIRE(split("abc", " ") == std::vector<std::string>{1, "abc"});
-        REQUIRE(split("", " ") == std::vector<std::string>{});
-        REQUIRE(split("***abc***def******gh**", "***") == std::vector<std::string>{{{"abc"}, {"def"}, {"gh**"}}});
+        SECTION("split case #1")
+        {
+            REQUIRE_THROW(split("a b c", ""), std::invalid_argument);
+        }
+
+        SECTION("split case #2")
+        {
+            const auto expected = std::vector<std::string>{{{"a"}, {"bcd"}, {"ef"}}};
+
+            REQUIRE(split("  a bcd ef ", " ") == expected);
+        }
+
+        SECTION("split case #3")
+        {
+            const auto expected = std::vector<std::string>(1, "abc");
+
+            REQUIRE(split("abc", " ") == expected);
+        }
+
+        SECTION("split case #4")
+        {
+            const auto expected = std::vector<std::string>{};
+
+            REQUIRE(split("", " ") == expected);
+        }
+
+        SECTION("split case #5")
+        {
+            const auto expected = std::vector<std::string>{{{"abc"}, {"def"}, {"gh**"}}};
+            
+            REQUIRE(split("***abc***def******gh**", "***") == expected);
+        }
     }
 
     SECTION("trim")
     {
         REQUIRE(trim("") == "");
+
         REQUIRE(trim("  \t\n") == "");
+
         REQUIRE(trim("   abc") == "abc");
+
         REQUIRE(trim("24f\t\t\t") == "24f");
+
         REQUIRE(trim("  @ $!\t>  ") == "@ $!\t>");
+
         REQUIRE(trim("gg") == "gg");
     }
 
@@ -94,5 +130,7 @@ TEST_CASE("string")
         REQUIRE(getFileName("\\") == std::string());
 
         REQUIRE(getFileName("/") == std::string());
+
+        REQUIRE(getFileName(nullptr) == nullptr);
     }
 }

@@ -1,5 +1,5 @@
 #include "dansandu/ballotin/logging.hpp"
-#include "catchorg/catch/catch.hpp"
+#include "dansandu/radiance/radiance.hpp"
 
 #include <stdexcept>
 #include <string>
@@ -21,21 +21,21 @@ TEST_CASE("logging")
 {
     SECTION("level comparison")
     {
-        STATIC_REQUIRE(Level::none < Level::critical);
+        REQUIRE(Level::none < Level::critical);
 
-        STATIC_REQUIRE(Level::critical < Level::error);
+        REQUIRE(Level::critical < Level::error);
 
-        STATIC_REQUIRE(Level::error < Level::warn);
+        REQUIRE(Level::error < Level::warn);
 
-        STATIC_REQUIRE(Level::warn < Level::info);
+        REQUIRE(Level::warn < Level::info);
 
-        STATIC_REQUIRE(Level::info < Level::debug);
+        REQUIRE(Level::info < Level::debug);
 
-        STATIC_REQUIRE(Level::debug == Level::debug);
+        REQUIRE(Level::debug == Level::debug);
 
-        STATIC_REQUIRE(Level::info != Level::debug);
+        REQUIRE(Level::info != Level::debug);
 
-        STATIC_REQUIRE(Level::debug >= Level::info);
+        REQUIRE(Level::debug >= Level::info);
     }
 
     auto logger = Logger{};
@@ -52,13 +52,13 @@ TEST_CASE("logging")
         testLog(logger, expectedLevel, expectedMessage,
                 [&](const LogEntry& logEntry)
                 {
-                    CHECK(logEntry.line == expectedLine);
+                    REQUIRE(logEntry.line == expectedLine);
 
-                    CHECK(logEntry.column == expectedColumn);
+                    REQUIRE(logEntry.column == expectedColumn);
 
-                    CHECK(logEntry.level == expectedLevel);
+                    REQUIRE(logEntry.level == expectedLevel);
 
-                    CHECK(logEntry.message == expectedMessage);
+                    REQUIRE(logEntry.message == expectedMessage);
 
                     logged = true;
                 });
@@ -85,7 +85,7 @@ TEST_CASE("logging")
 
         logger.addHandler(name, level, handler);
 
-        REQUIRE_THROWS_AS(logger.addHandler(name, level, handler), std::logic_error);
+        REQUIRE_THROW(logger.addHandler(name, level, handler), std::logic_error);
     }
 
     SECTION("remove handler")
