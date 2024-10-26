@@ -72,23 +72,24 @@ TEST_CASE("string")
             REQUIRE(split("  a bcd ef ", " ") == expected);
         }
 
-        SECTION("split case #2")
+        SECTION("split case #3")
         {
             const auto expected = std::vector<std::string>(1, "abc");
 
             REQUIRE(split("abc", " ") == expected);
         }
 
-        SECTION("split case #2")
+        SECTION("split case #4")
         {
             const auto expected = std::vector<std::string>{};
 
             REQUIRE(split("", " ") == expected);
         }
 
-        SECTION("split case #2")
+        SECTION("split case #5")
         {
             const auto expected = std::vector<std::string>{{{"abc"}, {"def"}, {"gh**"}}};
+            
             REQUIRE(split("***abc***def******gh**", "***") == expected);
         }
     }
