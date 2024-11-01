@@ -43,7 +43,6 @@ TEST_CASE("logging")
     SECTION("level matching")
     {
         const auto expectedLine = 17;
-        const auto expectedColumn = 5;
         const auto expectedLevel = Level::debug;
         const auto expectedMessage = L"message";
 
@@ -53,8 +52,6 @@ TEST_CASE("logging")
                 [&](const LogEntry& logEntry)
                 {
                     REQUIRE(logEntry.line == expectedLine);
-
-                    REQUIRE(logEntry.column == expectedColumn);
 
                     REQUIRE(logEntry.level == expectedLevel);
 

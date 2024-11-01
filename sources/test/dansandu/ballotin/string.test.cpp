@@ -89,7 +89,7 @@ TEST_CASE("string")
         SECTION("split case #5")
         {
             const auto expected = std::vector<std::string>{{{"abc"}, {"def"}, {"gh**"}}};
-            
+
             REQUIRE(split("***abc***def******gh**", "***") == expected);
         }
     }
