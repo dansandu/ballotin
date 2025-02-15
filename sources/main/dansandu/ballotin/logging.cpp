@@ -1,4 +1,5 @@
 #include "dansandu/ballotin/logging.hpp"
+#include "dansandu/ballotin/console.hpp"
 #include "dansandu/ballotin/date_time.hpp"
 #include "dansandu/ballotin/exception.hpp"
 #include "dansandu/ballotin/file_system.hpp"
@@ -7,10 +8,13 @@
 #include <algorithm>
 #include <fstream>
 
+using dansandu::ballotin::console::highlightText;
+using dansandu::ballotin::console::TextHighlight;
 using dansandu::ballotin::date_time::getLocalDateTime;
 using dansandu::ballotin::file_system::writeToStandardError;
 using dansandu::ballotin::file_system::writeToStandardOutput;
 using dansandu::ballotin::string::getFileName;
+using dansandu::ballotin::string::toWideString;
 using dansandu::ballotin::string::wformat;
 
 namespace dansandu::ballotin::logging
@@ -32,6 +36,27 @@ const char* toString(const Level level)
         return "INFO";
     case Level::debug:
         return "DEBUG";
+    default:
+        THROW(std::logic_error, "Unknown logging level");
+    }
+}
+
+std::wstring toStringWithConsoleHighlight(const Level level)
+{
+    const auto asString = toWideString(toString(level));
+    switch (level)
+    {
+    case Level::none:
+        return asString;
+    case Level::critical:
+    case Level::error:
+        return highlightText(asString, TextHighlight::Red);
+    case Level::warn:
+        return highlightText(asString, TextHighlight::Yellow);
+    case Level::info:
+        return highlightText(asString, TextHighlight::Blue);
+    case Level::debug:
+        return highlightText(asString, TextHighlight::Magenta);
     default:
         THROW(std::logic_error, "Unknown logging level");
     }
@@ -112,8 +137,9 @@ void Logger::log(const Level level, const std::wstring_view message, const std::
 
 void standardOutputLogHandler(const LogEntry& logEntry)
 {
-    const auto message = wformat(logEntry.timestamp, ' ', toString(logEntry.level), ' ', logEntry.threadId, ' ',
-                                 logEntry.file, '(', logEntry.line, ") ", logEntry.message, '\n');
+    const auto message =
+        wformat(logEntry.timestamp, ' ', toStringWithConsoleHighlight(logEntry.level), ' ', logEntry.threadId, ' ',
+                logEntry.file, '(', logEntry.line, ") ", logEntry.message, '\n');
 
     const auto flush = true;
     if (logEntry.level < Level::warn)
