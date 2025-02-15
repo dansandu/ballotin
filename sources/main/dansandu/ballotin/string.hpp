@@ -59,4 +59,10 @@ PRALINE_EXPORT std::string trim(const std::string_view string);
 
 PRALINE_EXPORT const char* getFileName(const char* filePath);
 
+PRALINE_EXPORT std::wstring toWideString(const char* const string);
+
+PRALINE_EXPORT std::wstring toWideString(const std::string& string);
+
+PRALINE_EXPORT std::wstring toWideString(std::wstring string);
+
 }

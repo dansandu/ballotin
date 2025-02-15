@@ -24,7 +24,9 @@ enum class Level
     debug
 };
 
-const char* toString(const Level level);
+PRALINE_EXPORT const char* toString(const Level level);
+
+PRALINE_EXPORT std::wstring toStringWithConsoleHighlight(const Level level);
 
 struct LogEntry
 {
