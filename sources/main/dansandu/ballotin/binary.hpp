@@ -1,12 +1,30 @@
 #pragma once
 
-#include <cstdint>
+#include "dansandu/ballotin/exception.hpp"
+
+#include <span>
 #include <vector>
 
 namespace dansandu::ballotin::binary
 {
 
-PRALINE_EXPORT void pushBits(std::vector<uint8_t>& bytes, int& bitsCount, const unsigned bitsToAppend,
-                             const int bitsToAppendCount);
+constexpr auto bitsPerByte = size_t{8};
+
+constexpr auto getMask(const size_t bitsCount)
+{
+    return (size_t{1} << bitsCount) - size_t{1};
+}
+
+PRALINE_EXPORT void pushBitsLeastSignificant(std::vector<uint8_t>& bytes, size_t& bitsCount, const size_t bitsToAppend,
+                                             const size_t bitsToAppendCount);
+
+PRALINE_EXPORT void pushBitsMostSignificant(std::vector<uint8_t>& bytes, size_t& bitsCount, const size_t bitsToAppend,
+                                            const size_t bitsToAppendCount);
+
+PRALINE_EXPORT size_t getMostSignificantBits(const std::span<const uint8_t> input, const size_t inputStartBitOffset,
+                                             const size_t bitsCount);
+
+PRALINE_EXPORT std::vector<size_t> splitBinary(const std::span<const uint8_t> input, const size_t bitsCount,
+                                               const size_t chunkBitsCount);
 
 }
