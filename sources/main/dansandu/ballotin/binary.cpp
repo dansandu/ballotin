@@ -97,78 +97,6 @@ void pushBitsMostSignificant(std::vector<uint8_t>& bytes, size_t& bitsCount, con
     }
 }
 
-template<typename T, typename U>
-std::vector<T> splitBinaryWork(const std::span<const U> input, const size_t bitsCount, const size_t chunkBitsCount)
-{
-    constexpr auto bitsPerInput = sizeof(U) * bitsPerByte;
-
-    constexpr auto bitsPerOutput = sizeof(T) * bitsPerByte;
-
-    auto output = std::vector<T>{};
-
-    if (chunkBitsCount == 0)
-    {
-        THROW(std::invalid_argument, "invalid chunk bits count ", chunkBitsCount,
-              " -- chunk bits count must be greater than zero", bitsPerInput);
-    }
-
-    if (input.size() * bitsPerInput < bitsCount)
-    {
-        THROW(std::invalid_argument, "invalid bits count ", bitsCount,
-              " -- bits count must be less or equal to input bits count", input.size() * bitsPerInput);
-    }
-
-    if (bitsPerOutput < chunkBitsCount)
-    {
-        THROW(std::invalid_argument, "the chunk bits count ", bitsCount, " does not fit the output size of ",
-              bitsPerOutput, " bits");
-    }
-
-    auto offset = size_t{0};
-    auto carryBits = size_t{0};
-    auto carryBitsCount = size_t{0};
-
-    while (offset < bitsCount)
-    {
-        const auto element = input[offset / bitsPerInput];
-        const auto bitsRemaining = bitsCount - offset;
-        const auto bitsRemainingCurrentByte = bitsPerInput - offset % bitsPerInput;
-        const auto maskBitsCount =
-            std::min(std::min(chunkBitsCount - carryBitsCount, bitsRemainingCurrentByte), bitsRemaining);
-
-        const auto chunkPrefix = carryBits << maskBitsCount;
-
-        const auto mask = getMask(maskBitsCount);
-
-        const auto bitsAfterChunkCurrentByte = bitsRemainingCurrentByte - maskBitsCount;
-
-        const auto currentChunkBitsCount = carryBitsCount + maskBitsCount;
-
-        const auto chunk = chunkPrefix | ((element >> bitsAfterChunkCurrentByte) & mask);
-
-        if (currentChunkBitsCount == chunkBitsCount)
-        {
-            output.push_back(chunk);
-            carryBits = 0;
-            carryBitsCount = 0;
-        }
-        else
-        {
-            carryBits = chunk;
-            carryBitsCount = currentChunkBitsCount;
-        }
-
-        offset += maskBitsCount;
-    }
-
-    if (carryBitsCount > 0)
-    {
-        output.push_back(carryBits);
-    }
-
-    return output;
-}
-
 size_t getMostSignificantBits(const std::span<const uint8_t> input, const size_t inputStartBitOffset,
                               const size_t bitsCount)
 {
@@ -207,12 +135,6 @@ size_t getMostSignificantBits(const std::span<const uint8_t> input, const size_t
     }
 
     return output;
-}
-
-std::vector<size_t> splitBinary(const std::span<const uint8_t> input, const size_t bitsCount,
-                                const size_t chunkBitsCount)
-{
-    return splitBinaryWork<size_t>(input, bitsCount, chunkBitsCount);
 }
 
 }

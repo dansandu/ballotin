@@ -8,7 +8,6 @@ using dansandu::ballotin::binary::bitsPerByte;
 using dansandu::ballotin::binary::getMostSignificantBits;
 using dansandu::ballotin::binary::pushBitsLeastSignificant;
 using dansandu::ballotin::binary::pushBitsMostSignificant;
-using dansandu::ballotin::binary::splitBinary;
 
 using BytesType = std::vector<uint8_t>;
 
@@ -299,20 +298,5 @@ TEST_CASE("binary")
 
             REQUIRE_THROW(getMostSignificantBits(largeInput, offset, count), std::invalid_argument);
         }
-    }
-
-    SECTION("split binary")
-    {
-        const BytesType input = {0b10110111, 0b01111011, 0b11101111, 0b11010100};
-
-        const std::vector<size_t> expected = {0b101, 0b101, 0b110, 0b111, 0b101, 0b111, 0b101, 0b111, 0b110, 0b101};
-
-        const auto bitsCount = 30;
-
-        const auto chunkSize = 3;
-
-        const auto output = splitBinary(input, bitsCount, chunkSize);
-
-        REQUIRE(output == expected);
     }
 }

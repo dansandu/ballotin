@@ -1,5 +1,3 @@
-
-
 #include "dansandu/ballotin/encoding.hpp"
 #include "dansandu/radiance/radiance.hpp"
 
@@ -8,6 +6,8 @@ using dansandu::ballotin::encoding::decode64;
 using dansandu::ballotin::encoding::encode64;
 using dansandu::ballotin::encoding::getBase64Characters;
 using dansandu::ballotin::encoding::stringToCode;
+
+using BytesType = std::vector<uint8_t>;
 
 TEST_CASE("encoding")
 {
@@ -78,6 +78,24 @@ TEST_CASE("encoding")
             const auto expected = "The message to encode to.";
 
             REQUIRE(codeToString(code) == expected);
+        }
+
+        SECTION("code to string")
+        {
+            const auto string = codeToString({0x4D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0xF1, 0xE0});
+
+            const auto expected = "Message\xF1\xE0";
+
+            REQUIRE(string == expected);
+        }
+
+        SECTION("string to code")
+        {
+            const auto code = stringToCode("Message\xF1\xE0");
+
+            const BytesType expected = {0x4D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0xF1, 0xE0};
+
+            REQUIRE(code == expected);
         }
     }
 }
