@@ -4,23 +4,26 @@
 #include <cstdint>
 #include <vector>
 
-using dansandu::ballotin::binary::pushBits;
+using dansandu::ballotin::binary::bitsPerByte;
+using dansandu::ballotin::binary::getMostSignificantBits;
+using dansandu::ballotin::binary::pushBitsLeastSignificant;
+using dansandu::ballotin::binary::pushBitsMostSignificant;
 
-using bytes_type = std::vector<uint8_t>;
+using BytesType = std::vector<uint8_t>;
 
 TEST_CASE("binary")
 {
-    SECTION("push bits")
+    SECTION("push bits least significant")
     {
         SECTION("new byte partial write")
         {
-            bytes_type output = {};
+            BytesType output = {};
 
-            auto bitsCount = 0;
+            size_t bitsCount = 0;
 
-            pushBits(output, bitsCount, 0b101U, 3);
+            pushBitsLeastSignificant(output, bitsCount, 0b101U, 3);
 
-            const bytes_type expectedOutput = {0b00000101U};
+            const BytesType expectedOutput = {0b00000101U};
 
             REQUIRE(output == expectedOutput);
 
@@ -35,13 +38,13 @@ TEST_CASE("binary")
 
         SECTION("previous byte parital write")
         {
-            bytes_type output = {0b00000101U};
+            BytesType output = {0b00000101U};
 
-            auto bitsCount = 3;
+            size_t bitsCount = 3;
 
-            pushBits(output, bitsCount, 0b1100U, 4);
+            pushBitsLeastSignificant(output, bitsCount, 0b1100U, 4);
 
-            const bytes_type expectedOutput = {0b01100101U};
+            const BytesType expectedOutput = {0b01100101U};
 
             REQUIRE(output == expectedOutput);
 
@@ -56,13 +59,13 @@ TEST_CASE("binary")
 
         SECTION("previous byte write extending to new byte")
         {
-            bytes_type output = {0b01100101U};
+            BytesType output = {0b01100101U};
 
-            auto bitsCount = 7;
+            size_t bitsCount = 7;
 
-            pushBits(output, bitsCount, 0b10011U, 5);
+            pushBitsLeastSignificant(output, bitsCount, 0b10011U, 5);
 
-            const bytes_type expectedOutput = {0b11100101U, 0b00001001U};
+            const BytesType expectedOutput = {0b11100101U, 0b00001001U};
 
             REQUIRE(output == expectedOutput);
 
@@ -77,13 +80,13 @@ TEST_CASE("binary")
 
         SECTION("previous byte fill")
         {
-            bytes_type output = {0b11100101U, 0b00001111U};
+            BytesType output = {0b11100101U, 0b00001111U};
 
-            auto bitsCount = 12;
+            size_t bitsCount = 12;
 
-            pushBits(output, bitsCount, 0b0110, 4);
+            pushBitsLeastSignificant(output, bitsCount, 0b0110, 4);
 
-            const bytes_type expectedOutput = {0b11100101U, 0b01101111U};
+            const BytesType expectedOutput = {0b11100101U, 0b01101111U};
 
             REQUIRE(output == expectedOutput);
 
@@ -98,13 +101,13 @@ TEST_CASE("binary")
 
         SECTION("new byte fill")
         {
-            bytes_type output = {0b11100101U, 0b01111111U, 0b00101011U};
+            BytesType output = {0b11100101U, 0b01111111U, 0b00101011U};
 
-            auto bitsCount = 24;
+            size_t bitsCount = 24;
 
-            pushBits(output, bitsCount, 0b00001100U, 8);
+            pushBitsLeastSignificant(output, bitsCount, 0b00001100U, 8);
 
-            const bytes_type expectedOutput = {0b11100101U, 0b01111111U, 0b00101011U, 0b00001100U};
+            const BytesType expectedOutput = {0b11100101U, 0b01111111U, 0b00101011U, 0b00001100U};
 
             REQUIRE(output == expectedOutput);
 
@@ -120,17 +123,20 @@ TEST_CASE("binary")
         SECTION("sequence")
         {
             const auto sequence = {32, 0, 34, 1, 4, 5, 6, 35, 33};
+
             const auto codeSize = 6;
-            auto output = bytes_type{};
-            auto bitsCount = 0;
+
+            auto output = BytesType{};
+
+            size_t bitsCount = 0;
 
             for (const auto code : sequence)
             {
-                pushBits(output, bitsCount, code, codeSize);
+                pushBitsLeastSignificant(output, bitsCount, code, codeSize);
             }
 
-            const bytes_type expectedOutput = {0b00100000U, 0b00100000U, 0b00000110U, 0b01000100U,
-                                               0b01100001U, 0b10001100U, 0b00100001U};
+            const BytesType expectedOutput = {0b00100000U, 0b00100000U, 0b00000110U, 0b01000100U,
+                                              0b01100001U, 0b10001100U, 0b00100001U};
 
             REQUIRE(output == expectedOutput);
 
@@ -141,39 +147,156 @@ TEST_CASE("binary")
 
         SECTION("large append")
         {
-            bytes_type output = {0b00000111};
+            BytesType output = {0b00000111};
 
-            auto bitsCount = 3;
+            size_t bitsCount = 3;
 
-            pushBits(output, bitsCount, 0b11111011110111011010, 20);
+            pushBitsLeastSignificant(output, bitsCount, 0b11111011110111011010, 20);
 
-            const bytes_type expectedOutput = {0b11010111, 0b11101110, 0b01111101};
+            const BytesType expectedOutput = {0b11010111, 0b11101110, 0b01111101};
 
             REQUIRE(output == expectedOutput);
         }
 
         SECTION("byte overflow")
         {
-            bytes_type output = {0b00110100, 0b00000000, 0b00000000};
-            auto bitsCount = 6;
+            BytesType output = {0b00110100};
 
-            pushBits(output, bitsCount, 0b00000011, 2);
+            size_t bitsCount = 6;
 
-            const bytes_type expectedOutput = {0b11110100};
+            pushBitsLeastSignificant(output, bitsCount, 0b00000011, 2);
 
-            REQUIRE(output == expectedOutput);
+            const BytesType expectedOutput = {0b11110100};
 
             const auto expectedBitsCount = 8;
+
+            REQUIRE(output == expectedOutput);
 
             REQUIRE(bitsCount == expectedBitsCount);
         }
 
         SECTION("byte underflow")
         {
-            bytes_type output = {0b10101010};
-            auto bitsCount = 9;
+            BytesType output = {0b10101010};
 
-            REQUIRE_THROW(pushBits(output, bitsCount, 0b00110011, 6), std::invalid_argument);
+            size_t bitsCount = 9;
+
+            REQUIRE_THROW(pushBitsLeastSignificant(output, bitsCount, 0b00110011, 6), std::invalid_argument);
+        }
+    }
+
+    SECTION("push bits most significat")
+    {
+        SECTION("large append")
+        {
+            BytesType output = {0b11100000};
+
+            size_t bitsCount = 3;
+
+            pushBitsMostSignificant(output, bitsCount, 0b01011011101111011111, 20);
+
+            const BytesType expectedOutput = {0b11101011, 0b01110111, 0b10111110};
+
+            REQUIRE(output == expectedOutput);
+        }
+
+        SECTION("multiple appends")
+        {
+            BytesType output = {};
+
+            size_t bitsCount = 0;
+
+            pushBitsMostSignificant(output, bitsCount, 0b010110, 6);
+
+            pushBitsMostSignificant(output, bitsCount, 0b111011, 6);
+
+            const BytesType expectedOutput = {0b01011011, 0b10110000};
+
+            REQUIRE(bitsCount == 12);
+
+            REQUIRE(output == expectedOutput);
+        }
+    }
+
+    SECTION("get most significant bits")
+    {
+        const BytesType input = {0b10110111, 0b01111011, 0b11101111, 0b11010100};
+
+        SECTION("no bits")
+        {
+            const auto offset = 0;
+
+            const auto count = 0;
+
+            const auto output = getMostSignificantBits(input, offset, count);
+
+            REQUIRE(output == 0);
+        }
+
+        SECTION("bits [0, 5)")
+        {
+            const auto offset = 0;
+
+            const auto count = 5;
+
+            const auto output = getMostSignificantBits(input, offset, count);
+
+            REQUIRE(output == 0b10110);
+        }
+
+        SECTION("bits [7, 20)")
+        {
+            const auto offset = 7;
+
+            const auto count = 13;
+
+            const auto output = getMostSignificantBits(input, offset, count);
+
+            REQUIRE(output == 0b1011110111110);
+        }
+
+        SECTION("bits [13, 27)")
+        {
+            const auto offset = 13;
+
+            const auto count = 14;
+
+            const auto output = getMostSignificantBits(input, offset, count);
+
+            REQUIRE(output == 0b01111101111110);
+        }
+
+        SECTION("all bits")
+        {
+            const auto offset = 0;
+
+            const auto count = 32;
+
+            const auto output = getMostSignificantBits(input, offset, count);
+
+            REQUIRE(output == 0b10110111011110111110111111010100);
+        }
+
+        SECTION("throws if bit count overflows input")
+        {
+            const auto offset = 2;
+
+            const auto count = 31;
+
+            REQUIRE_THROW(getMostSignificantBits(input, offset, count), std::invalid_argument);
+        }
+
+        SECTION("throws if bit count overflows output")
+        {
+            constexpr auto size = sizeof(getMostSignificantBits(input, 0, 0));
+
+            const auto largeInput = BytesType(size + 1);
+
+            const auto offset = 0;
+
+            const auto count = largeInput.size() * bitsPerByte;
+
+            REQUIRE_THROW(getMostSignificantBits(largeInput, offset, count), std::invalid_argument);
         }
     }
 }

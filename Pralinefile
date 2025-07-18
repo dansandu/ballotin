@@ -4,9 +4,6 @@ version: 1.0.0.SNAPSHOT
 test_service_runner: dansandu-service_runner
 dependencies:
 - organization: dansandu
-  artifact: journey
-  version: 1.0.0.SNAPSHOT
-- organization: dansandu
   artifact: radiance
   version: 1.0.0.SNAPSHOT
   scope: test
