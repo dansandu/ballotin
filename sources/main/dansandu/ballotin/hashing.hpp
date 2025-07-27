@@ -8,7 +8,7 @@ namespace dansandu::ballotin::hashing
 {
 
 template<typename T>
-uint64_t hash(const T& value)
+uint64_t getHashCode(const T& value)
 {
     using ValueType = std::decay_t<T>;
 
@@ -16,14 +16,14 @@ uint64_t hash(const T& value)
     constexpr uint64_t prime = 0x00000100000001B3ull;
     constexpr size_t bitsPerByte = 8;
 
-    uint64_t result = offset;
+    uint64_t hashCode = offset;
 
     if constexpr (std::is_arithmetic_v<ValueType>)
     {
         for (size_t index = 0; index < sizeof(value); ++index)
         {
-            result ^= (value >> (bitsPerByte * index)) & 0xFF;
-            result *= prime;
+            hashCode ^= (value >> (bitsPerByte * index)) & 0xFF;
+            hashCode *= prime;
         }
     }
     else if constexpr (std::is_enum_v<ValueType>)
@@ -34,20 +34,20 @@ uint64_t hash(const T& value)
 
         for (size_t index = 0; index < sizeof(UnderlyingType); ++index)
         {
-            result ^= (actualValue >> (bitsPerByte * index)) & 0xFF;
-            result *= prime;
+            hashCode ^= (actualValue >> (bitsPerByte * index)) & 0xFF;
+            hashCode *= prime;
         }
     }
     else if constexpr (std::is_same_v<ValueType, std::string>)
     {
         for (const auto character : value)
         {
-            result ^= character;
-            result *= prime;
+            hashCode ^= character;
+            hashCode *= prime;
         }
     }
 
-    return result;
+    return hashCode;
 }
 
 inline uint64_t hashCombine(const uint64_t seedHash, const uint64_t otherHash)

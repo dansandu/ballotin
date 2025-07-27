@@ -3,7 +3,7 @@
 
 #include <string>
 
-using dansandu::ballotin::hashing::hash;
+using dansandu::ballotin::hashing::getHashCode;
 using dansandu::ballotin::hashing::hashCombine;
 
 enum class MyEnum
@@ -17,9 +17,9 @@ TEST_CASE("hashing")
 {
     SECTION("hash integers")
     {
-        const auto a = hash(13);
+        const auto a = getHashCode(13);
 
-        const auto b = hash(29);
+        const auto b = getHashCode(29);
 
         REQUIRE(a != b);
 
@@ -32,9 +32,9 @@ TEST_CASE("hashing")
 
     SECTION("hash enums")
     {
-        const auto a = hash(MyEnum::a);
+        const auto a = getHashCode(MyEnum::a);
 
-        const auto b = hash(MyEnum::b);
+        const auto b = getHashCode(MyEnum::b);
 
         REQUIRE(a != b);
 
@@ -47,9 +47,9 @@ TEST_CASE("hashing")
 
     SECTION("hash strings")
     {
-        const auto a = hash(std::string("abcd"));
+        const auto a = getHashCode(std::string("abcd"));
 
-        const auto b = hash(std::string("abce"));
+        const auto b = getHashCode(std::string("abce"));
 
         REQUIRE(a != b);
 
