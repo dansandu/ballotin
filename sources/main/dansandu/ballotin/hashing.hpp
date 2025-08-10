@@ -103,6 +103,11 @@ uint64_t getHashCode64(const T& value)
     return hashCode;
 }
 
+inline uint32_t hashCombine(const uint32_t seedHash, const uint32_t otherHash)
+{
+    return seedHash ^ (otherHash + (seedHash << 6) + (seedHash >> 2) + 0x9E3779B9);
+}
+
 inline uint64_t hashCombine(const uint64_t seedHash, const uint64_t otherHash)
 {
     return seedHash ^ (otherHash + (seedHash << 6) + (seedHash >> 2) + 0x9E3779B9);
