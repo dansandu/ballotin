@@ -1,10 +1,10 @@
 #pragma once
 
-#include <string>
+#include "dansandu/journey/utility.hpp"
 
 namespace dansandu::ballotin::date_time
 {
 
-PRALINE_EXPORT std::string getLocalDateTime();
+using dansandu::journey::utility::getLocalDateTime;
 
 }

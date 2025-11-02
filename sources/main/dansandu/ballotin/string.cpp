@@ -51,36 +51,4 @@ std::string trim(const std::string_view string)
     return {begin, end};
 }
 
-const char* getFileName(const char* filePath)
-{
-    if (!filePath)
-    {
-        return filePath;
-    }
-
-    auto fileName = filePath + std::strlen(filePath);
-    while (fileName != filePath && *(fileName - 1) != '\\' && *(fileName - 1) != '/')
-    {
-        --fileName;
-    }
-    return fileName;
-}
-
-std::wstring toWideString(const char* const string)
-{
-    auto stream = std::wostringstream{};
-    stream << string;
-    return stream.str();
-}
-
-std::wstring toWideString(const std::string& string)
-{
-    return toWideString(string.c_str());
-}
-
-std::wstring toWideString(std::wstring string)
-{
-    return string;
-}
-
 }

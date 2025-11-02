@@ -1,5 +1,7 @@
 #pragma once
 
+#include "dansandu/journey/utility.hpp"
+
 #include <cstdint>
 #include <span>
 #include <string>
@@ -17,12 +19,16 @@ PRALINE_EXPORT void writeAsciiFile(const std::string& path, const std::span<cons
 
 PRALINE_EXPORT std::string readAsciiFile(const std::string& path);
 
-PRALINE_EXPORT void writeToStandardOutput(const std::string_view string, const bool flush = false);
+using dansandu::journey::utility::writeToStandardOutput;
 
-PRALINE_EXPORT void writeToStandardOutput(const std::wstring_view string, const bool flush = false);
+using dansandu::journey::utility::writeToStandardError;
 
-PRALINE_EXPORT void writeToStandardError(const std::string_view string, const bool flush = false);
+using dansandu::journey::utility::isSubpath;
 
-PRALINE_EXPORT void writeToStandardError(const std::wstring_view string, const bool flush = false);
+using dansandu::journey::utility::tryGetRelativePath;
+
+using dansandu::journey::utility::getFileName;
+
+using dansandu::journey::utility::replaceBackSlashes;
 
 }

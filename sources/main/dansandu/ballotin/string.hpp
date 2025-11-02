@@ -1,5 +1,7 @@
 #pragma once
 
+#include "dansandu/journey/utility.hpp"
+
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -22,47 +24,16 @@ auto join(const Iterable& iterable, const std::string_view separator)
     return result;
 }
 
-template<typename... Arguments>
-auto format(const Arguments&... arguments)
-{
-    auto stream = std::stringstream{};
-    (stream << ... << arguments);
-    return stream.str();
-}
-
-template<typename... Arguments>
-auto wformat(const Arguments&... arguments)
-{
-    auto stream = std::wstringstream{};
-    auto streamWriter = [&stream]<typename T>(const T& argument)
-    {
-        if constexpr (std::is_same_v<std::decay_t<T>, std::string>)
-        {
-            stream << argument.c_str();
-        }
-        else if constexpr (std::is_same_v<std::decay_t<T>, std::string_view>)
-        {
-            stream.write(argument.begin(), argument.end() - argument.begin());
-        }
-        else
-        {
-            stream << argument;
-        }
-    };
-    (streamWriter(arguments), ...);
-    return stream.str();
-}
-
 PRALINE_EXPORT std::vector<std::string> split(const std::string_view string, const std::string_view delimiter);
 
 PRALINE_EXPORT std::string trim(const std::string_view string);
 
-PRALINE_EXPORT const char* getFileName(const char* filePath);
+using dansandu::journey::utility::format;
 
-PRALINE_EXPORT std::wstring toWideString(const char* const string);
+using dansandu::journey::utility::wformat;
 
-PRALINE_EXPORT std::wstring toWideString(const std::string& string);
+using dansandu::journey::utility::toWideString;
 
-PRALINE_EXPORT std::wstring toWideString(std::wstring string);
+using dansandu::journey::utility::replaceBackSlashes;
 
 }
