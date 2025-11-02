@@ -2,8 +2,6 @@
 #include "dansandu/ballotin/exception.hpp"
 
 #include <fstream>
-#include <iostream>
-#include <mutex>
 #include <streambuf>
 #include <string>
 #include <vector>
@@ -60,48 +58,6 @@ std::string readAsciiFile(const std::string& path)
     }
 
     return std::string(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
-}
-
-static auto standardOutputMutex = std::mutex{};
-
-void writeToStandardOutput(const std::string_view string, const bool flush)
-{
-    const auto lock = std::lock_guard<std::mutex>{standardOutputMutex};
-    std::cout << string;
-    if (flush)
-    {
-        std::cout.flush();
-    }
-}
-
-void writeToStandardOutput(const std::wstring_view string, const bool flush)
-{
-    const auto lock = std::lock_guard<std::mutex>{standardOutputMutex};
-    std::wcout << string;
-    if (flush)
-    {
-        std::wcout.flush();
-    }
-}
-
-void writeToStandardError(const std::string_view string, const bool flush)
-{
-    const auto lock = std::lock_guard<std::mutex>{standardOutputMutex};
-    std::cerr << string;
-    if (flush)
-    {
-        std::cerr.flush();
-    }
-}
-
-void writeToStandardError(const std::wstring_view string, const bool flush)
-{
-    const auto lock = std::lock_guard<std::mutex>{standardOutputMutex};
-    std::wcerr << string;
-    if (flush)
-    {
-        std::wcerr.flush();
-    }
 }
 
 }

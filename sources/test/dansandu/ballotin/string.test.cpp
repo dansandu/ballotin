@@ -5,8 +5,8 @@
 #include <vector>
 
 using dansandu::ballotin::string::format;
-using dansandu::ballotin::string::getFileName;
 using dansandu::ballotin::string::join;
+using dansandu::ballotin::string::replaceBackSlashes;
 using dansandu::ballotin::string::split;
 using dansandu::ballotin::string::trim;
 using dansandu::ballotin::string::wformat;
@@ -109,28 +109,10 @@ TEST_CASE("string")
         REQUIRE(trim("gg") == "gg");
     }
 
-    SECTION("file name")
+    SECTION("replaceBackSlashes")
     {
-        REQUIRE(getFileName("") == std::string());
+        REQUIRE(replaceBackSlashes("a/b/c\\d\\\\e/f\\") == "a/b/c/d//e/f/");
 
-        REQUIRE(getFileName("a") == std::string("a"));
-
-        REQUIRE(getFileName("abc") == std::string("abc"));
-
-        REQUIRE(getFileName("abc.txt") == std::string("abc.txt"));
-
-        REQUIRE(getFileName("path\\to\\file") == std::string("file"));
-
-        REQUIRE(getFileName("path/to/file") == std::string("file"));
-
-        REQUIRE(getFileName("\\file") == std::string("file"));
-
-        REQUIRE(getFileName("/file") == std::string("file"));
-
-        REQUIRE(getFileName("\\") == std::string());
-
-        REQUIRE(getFileName("/") == std::string());
-
-        REQUIRE(getFileName(nullptr) == nullptr);
+        REQUIRE(replaceBackSlashes("") == "");
     }
 }
