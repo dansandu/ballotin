@@ -62,7 +62,7 @@ TEST_CASE("string")
     {
         SECTION("split case #1")
         {
-            REQUIRE_THROW(split("a b c", ""), std::invalid_argument);
+            REQUIRE_THROW(std::invalid_argument, split("a b c", ""));
         }
 
         SECTION("split case #2")

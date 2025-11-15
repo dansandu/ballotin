@@ -29,7 +29,7 @@ TEST_CASE("scope")
                 throw std::runtime_error("error");
             };
 
-            REQUIRE_THROW(failingFunction(), std::runtime_error);
+            REQUIRE_THROW(std::runtime_error, failingFunction());
 
             REQUIRE(triggered);
         }
