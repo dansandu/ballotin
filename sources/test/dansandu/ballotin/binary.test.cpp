@@ -181,7 +181,7 @@ TEST_CASE("binary")
 
             size_t bitsCount = 9;
 
-            REQUIRE_THROW(pushBitsLeastSignificant(output, bitsCount, 0b00110011, 6), std::invalid_argument);
+            REQUIRE_THROW(std::invalid_argument, pushBitsLeastSignificant(output, bitsCount, 0b00110011, 6));
         }
     }
 
@@ -283,7 +283,7 @@ TEST_CASE("binary")
 
             const auto count = 31;
 
-            REQUIRE_THROW(getMostSignificantBits(input, offset, count), std::invalid_argument);
+            REQUIRE_THROW(std::invalid_argument, getMostSignificantBits(input, offset, count));
         }
 
         SECTION("throws if bit count overflows output")
@@ -296,7 +296,7 @@ TEST_CASE("binary")
 
             const auto count = largeInput.size() * bitsPerByte;
 
-            REQUIRE_THROW(getMostSignificantBits(largeInput, offset, count), std::invalid_argument);
+            REQUIRE_THROW(std::invalid_argument, getMostSignificantBits(largeInput, offset, count));
         }
     }
 }
