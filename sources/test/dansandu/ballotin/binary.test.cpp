@@ -27,11 +27,11 @@ TEST_CASE("binary")
 
             REQUIRE(output == expectedOutput);
 
-            const auto expectedByteCount = 1;
+            const size_t expectedByteCount = 1;
 
             REQUIRE(output.size() == expectedByteCount);
 
-            const auto expectedBitsCount = 3;
+            const size_t expectedBitsCount = 3;
 
             REQUIRE(bitsCount == expectedBitsCount);
         }
@@ -48,11 +48,11 @@ TEST_CASE("binary")
 
             REQUIRE(output == expectedOutput);
 
-            const auto expectedByteCount = 1;
+            const size_t expectedByteCount = 1;
 
             REQUIRE(output.size() == expectedByteCount);
 
-            const auto expectedBitsCount = 7;
+            const size_t expectedBitsCount = 7;
 
             REQUIRE(bitsCount == expectedBitsCount);
         }
@@ -69,11 +69,11 @@ TEST_CASE("binary")
 
             REQUIRE(output == expectedOutput);
 
-            const auto expectedByteCount = 2;
+            const size_t expectedByteCount = 2;
 
             REQUIRE(output.size() == expectedByteCount);
 
-            const auto expectedBitsCount = 12;
+            const size_t expectedBitsCount = 12;
 
             REQUIRE(bitsCount == expectedBitsCount);
         }
@@ -90,11 +90,11 @@ TEST_CASE("binary")
 
             REQUIRE(output == expectedOutput);
 
-            const auto expectedByteCount = 2;
+            const size_t expectedByteCount = 2;
 
             REQUIRE(output.size() == expectedByteCount);
 
-            const auto expectedBitsCount = 16;
+            const size_t expectedBitsCount = 16;
 
             REQUIRE(bitsCount == expectedBitsCount);
         }
@@ -111,11 +111,11 @@ TEST_CASE("binary")
 
             REQUIRE(output == expectedOutput);
 
-            const auto expectedByteCount = 4;
+            const size_t expectedByteCount = 4;
 
             REQUIRE(output.size() == expectedByteCount);
 
-            const auto expectedBitsCount = 32;
+            const size_t expectedBitsCount = 32;
 
             REQUIRE(bitsCount == expectedBitsCount);
         }
@@ -124,7 +124,7 @@ TEST_CASE("binary")
         {
             const auto sequence = {32, 0, 34, 1, 4, 5, 6, 35, 33};
 
-            const auto codeSize = 6;
+            const size_t codeSize = 6;
 
             auto output = BytesType{};
 
@@ -140,7 +140,7 @@ TEST_CASE("binary")
 
             REQUIRE(output == expectedOutput);
 
-            const auto expectedBitsCount = 54;
+            const size_t expectedBitsCount = 54;
 
             REQUIRE(bitsCount == expectedBitsCount);
         }
@@ -168,7 +168,7 @@ TEST_CASE("binary")
 
             const BytesType expectedOutput = {0b11110100};
 
-            const auto expectedBitsCount = 8;
+            const size_t expectedBitsCount = 8;
 
             REQUIRE(output == expectedOutput);
 
@@ -206,13 +206,15 @@ TEST_CASE("binary")
 
             size_t bitsCount = 0;
 
+            const size_t expectedBitsCount = 12;
+
             pushBitsMostSignificant(output, bitsCount, 0b010110, 6);
 
             pushBitsMostSignificant(output, bitsCount, 0b111011, 6);
 
             const BytesType expectedOutput = {0b01011011, 0b10110000};
 
-            REQUIRE(bitsCount == 12);
+            REQUIRE(bitsCount == expectedBitsCount);
 
             REQUIRE(output == expectedOutput);
         }
@@ -224,64 +226,74 @@ TEST_CASE("binary")
 
         SECTION("no bits")
         {
-            const auto offset = 0;
+            const size_t offset = 0;
 
-            const auto count = 0;
+            const size_t count = 0;
+
+            const size_t expectedOutput = 0;
 
             const auto output = getMostSignificantBits(input, offset, count);
 
-            REQUIRE(output == 0);
+            REQUIRE(output == expectedOutput);
         }
 
         SECTION("bits [0, 5)")
         {
-            const auto offset = 0;
+            const size_t offset = 0;
 
-            const auto count = 5;
+            const size_t count = 5;
+
+            const size_t expectedOutput = 0b10110;
 
             const auto output = getMostSignificantBits(input, offset, count);
 
-            REQUIRE(output == 0b10110);
+            REQUIRE(output == expectedOutput);
         }
 
         SECTION("bits [7, 20)")
         {
-            const auto offset = 7;
+            const size_t offset = 7;
 
-            const auto count = 13;
+            const size_t count = 13;
+
+            const size_t expectedOutput = 0b1011110111110;
 
             const auto output = getMostSignificantBits(input, offset, count);
 
-            REQUIRE(output == 0b1011110111110);
+            REQUIRE(output == expectedOutput);
         }
 
         SECTION("bits [13, 27)")
         {
-            const auto offset = 13;
+            const size_t offset = 13;
 
-            const auto count = 14;
+            const size_t count = 14;
+
+            const size_t expectedOutput = 0b01111101111110;
 
             const auto output = getMostSignificantBits(input, offset, count);
 
-            REQUIRE(output == 0b01111101111110);
+            REQUIRE(output == expectedOutput);
         }
 
         SECTION("all bits")
         {
-            const auto offset = 0;
+            const size_t offset = 0;
 
-            const auto count = 32;
+            const size_t count = 32;
+
+            const size_t expectedOutput = 0b10110111011110111110111111010100U;
 
             const auto output = getMostSignificantBits(input, offset, count);
 
-            REQUIRE(output == 0b10110111011110111110111111010100);
+            REQUIRE(output == expectedOutput);
         }
 
         SECTION("throws if bit count overflows input")
         {
-            const auto offset = 2;
+            const size_t offset = 2;
 
-            const auto count = 31;
+            const size_t count = 31;
 
             REQUIRE_THROW(std::invalid_argument, getMostSignificantBits(input, offset, count));
         }
@@ -292,9 +304,9 @@ TEST_CASE("binary")
 
             const auto largeInput = BytesType(size + 1);
 
-            const auto offset = 0;
+            const size_t offset = 0;
 
-            const auto count = largeInput.size() * bitsPerByte;
+            const size_t count = largeInput.size() * bitsPerByte;
 
             REQUIRE_THROW(std::invalid_argument, getMostSignificantBits(largeInput, offset, count));
         }

@@ -1,11 +1,10 @@
 #pragma once
 
-#include <optional>
-#include <string>
+#include "dansandu/journey/utility.hpp"
 
 namespace dansandu::ballotin::environment
 {
 
-PRALINE_EXPORT std::optional<std::string> getEnvironmentVariable(const std::string& variable);
+using dansandu::journey::utility::getEnvironmentVariable;
 
 }
