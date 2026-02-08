@@ -6,6 +6,7 @@
 
 using dansandu::ballotin::binary::bitsPerByte;
 using dansandu::ballotin::binary::getMostSignificantBits;
+using dansandu::ballotin::binary::numberOfBitsToNumberOfBytes;
 using dansandu::ballotin::binary::pushBitsLeastSignificant;
 using dansandu::ballotin::binary::pushBitsMostSignificant;
 
@@ -13,6 +14,21 @@ using BytesType = std::vector<uint8_t>;
 
 TEST_CASE("binary")
 {
+    SECTION("number of bits to number of bytes")
+    {
+        REQUIRE(numberOfBitsToNumberOfBytes(0) == 0);
+
+        REQUIRE(numberOfBitsToNumberOfBytes(2) == 1);
+
+        REQUIRE(numberOfBitsToNumberOfBytes(8) == 1);
+
+        REQUIRE(numberOfBitsToNumberOfBytes(12) == 2);
+
+        REQUIRE(numberOfBitsToNumberOfBytes(16) == 2);
+
+        REQUIRE(numberOfBitsToNumberOfBytes(17) == 3);
+    }
+
     SECTION("push bits least significant")
     {
         SECTION("new byte partial write")
