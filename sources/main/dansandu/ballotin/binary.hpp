@@ -15,6 +15,11 @@ constexpr auto getMask(const size_t bitsCount)
     return (size_t{1} << bitsCount) - size_t{1};
 }
 
+constexpr size_t numberOfBitsToNumberOfBytes(const size_t numberOfBits)
+{
+    return numberOfBits / bitsPerByte + (numberOfBits % bitsPerByte > 0);
+}
+
 PRALINE_EXPORT void pushBitsLeastSignificant(std::vector<uint8_t>& bytes, size_t& bitsCount, const size_t bitsToAppend,
                                              const size_t bitsToAppendCount);
 
