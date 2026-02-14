@@ -159,10 +159,10 @@ private:
         destruct,
     };
 
-    using Invoker = Return (*)(void* const object, const FunctionPointer functionPointer, Arguments&&... arguments);
+    using Invoker = Return (*)(void* const object, const FunctionPointer functionPointer, Arguments... arguments);
     using Dispatcher = void* (*)(const Operation operation, void* const object);
 
-    static Return functionPointerInvoker(void* const, const FunctionPointer functionPointer, Arguments&&... arguments)
+    static Return functionPointerInvoker(void* const, const FunctionPointer functionPointer, Arguments... arguments)
     {
         if constexpr (std::is_same_v<Return, void>)
         {
@@ -179,7 +179,7 @@ private:
     {
         using DecayedType = std::decay_t<T>;
 
-        static Return invoker(void* const object, const FunctionPointer, Arguments&&... arguments)
+        static Return invoker(void* const object, const FunctionPointer, Arguments... arguments)
         {
             const auto casted = static_cast<DecayedType*>(object);
             if constexpr (std::is_same_v<Return, void>)
