@@ -1,12 +1,13 @@
 #pragma once
 
+#include <concepts>
 #include <type_traits>
 
 namespace dansandu::ballotin::type_traits
 {
 
 template<typename... Types>
-struct TypePack
+struct TypeList
 {
     template<template<typename...> typename T>
     using ExpandedInto = T<Types...>;
@@ -48,5 +49,9 @@ public:
     template<typename Key>
     using Get = typename Getter<Key, Entries...>::Result;
 };
+
+template<typename T, typename R, typename... A>
+concept Invokable = requires { static_cast<R (std::decay_t<T>::*)(A...)>(&std::decay_t<T>::operator()); } ||
+                    requires { static_cast<R (std::decay_t<T>::*)(A...) const>(&std::decay_t<T>::operator()); };
 
 }
