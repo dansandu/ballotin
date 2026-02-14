@@ -523,30 +523,30 @@ TEST_CASE("function")
 
             function(TrackedObject{session});
 
-            REQUIRE(session.getCreatedInstances() == 2);
+            REQUIRE(session.getCreatedInstances() == 3);
 
             REQUIRE(session.getCopyConstructorCalls() == 0);
 
-            REQUIRE(session.getMoveConstructorCalls() == 1);
+            REQUIRE(session.getMoveConstructorCalls() == 2);
 
             REQUIRE(session.getCopyAssignmentCalls() == 0);
 
             REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-            REQUIRE(session.getDestructorCalls() == 2);
+            REQUIRE(session.getDestructorCalls() == 3);
         }
 
-        REQUIRE(session.getCreatedInstances() == 2);
+        REQUIRE(session.getCreatedInstances() == 3);
 
         REQUIRE(session.getCopyConstructorCalls() == 0);
 
-        REQUIRE(session.getMoveConstructorCalls() == 1);
+        REQUIRE(session.getMoveConstructorCalls() == 2);
 
         REQUIRE(session.getCopyAssignmentCalls() == 0);
 
         REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-        REQUIRE(session.getDestructorCalls() == 2);
+        REQUIRE(session.getDestructorCalls() == 3);
     }
 
     SECTION("conversion")
