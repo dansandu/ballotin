@@ -8,28 +8,55 @@
 namespace dansandu::ballotin::scope
 {
 
-template<typename FunctorType>
-class ScopeFailureGuard
+enum class ScopeGuardStrategy
+{
+    fireOnFailure,
+    fireOnSuccess,
+    fireOnExit,
+};
+
+template<ScopeGuardStrategy scopeGuardStrategy, typename FunctorType>
+class ScopeGuard
 {
 public:
     template<typename F>
-    explicit ScopeFailureGuard(F&& functor)
+    explicit ScopeGuard(F&& functor)
         : uncaughtExceptions_{std::uncaught_exceptions()}, functor_{std::forward<F>(functor)}
     {
     }
 
-    ScopeFailureGuard(const ScopeFailureGuard&) = delete;
-    ScopeFailureGuard(ScopeFailureGuard&&) = delete;
-    ScopeFailureGuard& operator=(const ScopeFailureGuard&) = delete;
-    ScopeFailureGuard& operator=(ScopeFailureGuard&&) = delete;
+    ScopeGuard(const ScopeGuard&) = delete;
+    ScopeGuard(ScopeGuard&&) = delete;
+    ScopeGuard& operator=(const ScopeGuard&) = delete;
+    ScopeGuard& operator=(ScopeGuard&&) = delete;
 
-    ~ScopeFailureGuard() noexcept
+    ~ScopeGuard() noexcept
     {
-        const auto currentUncaughtExceptions = std::uncaught_exceptions();
+        if constexpr (scopeGuardStrategy == ScopeGuardStrategy::fireOnFailure)
+        {
+            const auto currentUncaughtExceptions = std::uncaught_exceptions();
 
-        if (currentUncaughtExceptions != uncaughtExceptions_)
+            if (currentUncaughtExceptions != uncaughtExceptions_)
+            {
+                functor_();
+            }
+        }
+        else if constexpr (scopeGuardStrategy == ScopeGuardStrategy::fireOnSuccess)
+        {
+            const auto currentUncaughtExceptions = std::uncaught_exceptions();
+
+            if (currentUncaughtExceptions == uncaughtExceptions_)
+            {
+                functor_();
+            }
+        }
+        else if constexpr (scopeGuardStrategy == ScopeGuardStrategy::fireOnExit)
         {
             functor_();
+        }
+        else
+        {
+            static_assert(true, "Unknown scope guard strategy");
         }
     }
 
@@ -41,10 +68,28 @@ private:
 template<typename FunctorType>
 auto makeScopeFailureGuard(FunctorType&& functor)
 {
-    return ScopeFailureGuard<std::decay_t<FunctorType>>(std::forward<FunctorType>(functor));
+    return ScopeGuard<ScopeGuardStrategy::fireOnFailure, std::decay_t<FunctorType>>(std::forward<FunctorType>(functor));
+}
+
+template<typename FunctorType>
+auto makeScopeSuccessGuard(FunctorType&& functor)
+{
+    return ScopeGuard<ScopeGuardStrategy::fireOnSuccess, std::decay_t<FunctorType>>(std::forward<FunctorType>(functor));
+}
+
+template<typename FunctorType>
+auto makeScopeExitGuard(FunctorType&& functor)
+{
+    return ScopeGuard<ScopeGuardStrategy::fireOnExit, std::decay_t<FunctorType>>(std::forward<FunctorType>(functor));
 }
 
 }
 
 #define SCOPE_FAILURE(...)                                                                                             \
-    const auto DANSANDU_JOURNEY_UNIQUE_NAME = dansandu::ballotin::scope::makeScopeFailureGuard(__VA_ARGS__)
+    const auto DANSANDU_JOURNEY_UNIQUE_NAME = ::dansandu::ballotin::scope::makeScopeFailureGuard(__VA_ARGS__)
+
+#define SCOPE_SUCCESS(...)                                                                                             \
+    const auto DANSANDU_JOURNEY_UNIQUE_NAME = ::dansandu::ballotin::scope::makeScopeSuccessGuard(__VA_ARGS__)
+
+#define SCOPE_EXIT(...)                                                                                                \
+    const auto DANSANDU_JOURNEY_UNIQUE_NAME = ::dansandu::ballotin::scope::makeScopeExitGuard(__VA_ARGS__)
