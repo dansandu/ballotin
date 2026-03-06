@@ -9,8 +9,8 @@
 namespace dansandu::ballotin::function
 {
 
-template<typename T>
-class Function;
+template<bool Copyable, typename T>
+class FunctionImplementation;
 
 template<typename T>
 struct IsFunctionTemplate
@@ -19,28 +19,34 @@ struct IsFunctionTemplate
 };
 
 template<typename T>
-struct IsFunctionTemplate<Function<T>>
+struct IsFunctionTemplate<FunctionImplementation<true, T>>
 {
     static constexpr auto value = true;
 };
 
-template<typename Return, typename... Arguments>
-class Function<Return(Arguments...)>
+template<typename T>
+struct IsFunctionTemplate<FunctionImplementation<false, T>>
+{
+    static constexpr auto value = true;
+};
+
+template<bool Copyable, typename Return, typename... Arguments>
+class FunctionImplementation<Copyable, Return(Arguments...)>
 {
 public:
     using FunctionPointer = Return (*)(Arguments... arguments);
 
-    Function() : object_{nullptr}, dispatcher_{nullptr}, functionPointer_{nullptr}, invoker_{nullptr}
+    FunctionImplementation() : object_{nullptr}, dispatcher_{nullptr}, functionPointer_{nullptr}, invoker_{nullptr}
     {
     }
 
-    Function(const FunctionPointer functionPointer)
+    FunctionImplementation(const FunctionPointer functionPointer)
         : object_{nullptr}, dispatcher_{nullptr}, functionPointer_{functionPointer}, invoker_{functionPointerInvoker}
     {
     }
 
     template<typename T>
-    Function(T&& object)
+    FunctionImplementation(T&& object)
         requires !IsFunctionTemplate<std::decay_t<T>>::value && !std::is_pointer_v<std::decay_t<T>> &&
                      dansandu::ballotin::type_traits::Invokable<T, Return, Arguments...>
         : object_{new std::decay_t<T>{std::forward<T>(object)}},
@@ -50,7 +56,8 @@ public:
     {
     }
 
-    Function(const Function& other)
+    FunctionImplementation(const FunctionImplementation& other)
+        requires Copyable
         : object_{nullptr},
           dispatcher_{other.dispatcher_},
           functionPointer_{other.functionPointer_},
@@ -58,11 +65,11 @@ public:
     {
         if (dispatcher_)
         {
-            object_ = dispatcher_(Operation::copy, other.object_);
+            object_ = dispatcher_(copyOperation, other.object_);
         }
     }
 
-    Function(Function&& other) noexcept
+    FunctionImplementation(FunctionImplementation&& other) noexcept
         : object_{other.object_},
           dispatcher_{other.dispatcher_},
           functionPointer_{other.functionPointer_},
@@ -74,7 +81,8 @@ public:
         other.invoker_ = nullptr;
     }
 
-    Function& operator=(const Function& other)
+    FunctionImplementation& operator=(const FunctionImplementation& other)
+        requires Copyable
     {
         if (this == &other)
         {
@@ -85,12 +93,12 @@ public:
 
         if (other.dispatcher_)
         {
-            temporary = other.dispatcher_(Operation::copy, other.object_);
+            temporary = other.dispatcher_(copyOperation, other.object_);
         }
 
         if (dispatcher_)
         {
-            dispatcher_(Operation::destruct, object_);
+            dispatcher_(destructOperation, object_);
         }
 
         object_ = temporary;
@@ -101,7 +109,7 @@ public:
         return *this;
     }
 
-    Function& operator=(Function&& other) noexcept
+    FunctionImplementation& operator=(FunctionImplementation&& other) noexcept
     {
         if (this == &other)
         {
@@ -110,7 +118,7 @@ public:
 
         if (dispatcher_)
         {
-            dispatcher_(Operation::destruct, object_);
+            dispatcher_(destructOperation, object_);
         }
 
         object_ = other.object_;
@@ -126,11 +134,11 @@ public:
         return *this;
     }
 
-    ~Function() noexcept
+    ~FunctionImplementation() noexcept
     {
         if (dispatcher_)
         {
-            dispatcher_(Operation::destruct, object_);
+            dispatcher_(destructOperation, object_);
         }
     }
 
@@ -143,7 +151,7 @@ public:
         }
         else
         {
-            THROW(std::logic_error, "Function doesn't not hold any invokable object");
+            THROW(std::logic_error, "FunctionImplementation doesn't not hold any invokable object");
         }
     }
 
@@ -153,14 +161,8 @@ public:
     }
 
 private:
-    enum class Operation
-    {
-        copy,
-        destruct,
-    };
-
     using Invoker = Return (*)(void* const object, const FunctionPointer functionPointer, Arguments... arguments);
-    using Dispatcher = void* (*)(const Operation operation, void* const object);
+    using Dispatcher = void* (*)(const bool operation, void* const object);
 
     static Return functionPointerInvoker(void* const, const FunctionPointer functionPointer, Arguments... arguments)
     {
@@ -192,25 +194,41 @@ private:
             }
         }
 
-        static void* dispatcher(const Operation operation, void* const object)
+        static void* dispatcher(const bool operation, void* const object)
         {
-            switch (operation)
+            if constexpr (Copyable)
             {
-            case Operation::copy:
-                return new DecayedType{*static_cast<DecayedType*>(object)};
-            case Operation::destruct:
+                if (operation)
+                {
+                    return new DecayedType{*static_cast<DecayedType*>(object)};
+                }
+                else
+                {
+                    delete static_cast<DecayedType*>(object);
+                    return nullptr;
+                }
+            }
+            else
+            {
                 delete static_cast<DecayedType*>(object);
                 return nullptr;
-            default:
-                THROW(std::logic_error, "Unknown operation");
             }
         }
     };
+
+    static constexpr auto copyOperation = true;
+    static constexpr auto destructOperation = false;
 
     void* object_;
     Dispatcher dispatcher_;
     FunctionPointer functionPointer_;
     Invoker invoker_;
 };
+
+template<typename T>
+using Function = FunctionImplementation<true, T>;
+
+template<typename T>
+using UniqueFunction = FunctionImplementation<false, T>;
 
 }
