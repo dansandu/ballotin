@@ -1,5 +1,5 @@
-#include "dansandu/ballotin/function.hpp"
 #include "dansandu/ballotin/diagnostics.hpp"
+#include "dansandu/ballotin/function.hpp"
 #include "dansandu/radiance/radiance.hpp"
 
 #include <stdexcept>
@@ -19,11 +19,11 @@ void rawFunction(TrackedObject&)
 
 }
 
-TEST_CASE("function")
+TEST_CASE("unique_function")
 {
     SECTION("empty function")
     {
-        Function<void()> function;
+        UniqueFunction<void()> function;
 
         REQUIRE(function.isEmpty());
 
@@ -37,7 +37,7 @@ TEST_CASE("function")
         {
             auto parameter = TrackedObject{session};
 
-            Function<void(TrackedObject&)> function = rawFunction;
+            UniqueFunction<void(TrackedObject&)> function = rawFunction;
 
             REQUIRE(!function.isEmpty());
 
@@ -86,7 +86,7 @@ TEST_CASE("function")
         auto session = TrackedObjectSession{};
 
         {
-            Function<void()> function = [member = TrackedObject{session}]() {};
+            UniqueFunction<void()> function = [member = TrackedObject{session}]() {};
 
             REQUIRE(!function.isEmpty());
 
@@ -135,7 +135,7 @@ TEST_CASE("function")
         auto session = TrackedObjectSession{};
 
         {
-            Function<void()> function = [member = TrackedObject{session}]() mutable {};
+            UniqueFunction<void()> function = [member = TrackedObject{session}]() mutable {};
 
             REQUIRE(!function.isEmpty());
 
@@ -179,7 +179,7 @@ TEST_CASE("function")
         REQUIRE(session.getDestructorCalls() == 3);
     }
 
-    SECTION("construction from invokable type")
+    SECTION("construction from uncopyable invokable type")
     {
         auto session = TrackedObjectSession{};
 
@@ -188,6 +188,12 @@ TEST_CASE("function")
             explicit InvokableType(TrackedObjectSession& session) : member{session}
             {
             }
+
+            InvokableType(const InvokableType&) = delete;
+            InvokableType(InvokableType&&) noexcept = default;
+
+            InvokableType& operator=(const InvokableType&) = delete;
+            InvokableType& operator=(InvokableType&&) noexcept = default;
 
             int operator()() const
             {
@@ -198,7 +204,7 @@ TEST_CASE("function")
         };
 
         {
-            Function<int()> function = InvokableType{session};
+            UniqueFunction<int()> function = InvokableType{session};
 
             REQUIRE(!function.isEmpty());
 
@@ -242,69 +248,12 @@ TEST_CASE("function")
         REQUIRE(session.getDestructorCalls() == 2);
     }
 
-    SECTION("copy construction")
-    {
-        auto session = TrackedObjectSession{};
-
-        {
-            Function<int()> original = [object = TrackedObject{session}]() { return 13; };
-
-            REQUIRE(!original.isEmpty());
-
-            REQUIRE(session.getCreatedInstances() == 3);
-
-            REQUIRE(session.getCopyConstructorCalls() == 0);
-
-            REQUIRE(session.getMoveConstructorCalls() == 2);
-
-            REQUIRE(session.getCopyAssignmentCalls() == 0);
-
-            REQUIRE(session.getMoveAssignmentCalls() == 0);
-
-            REQUIRE(session.getDestructorCalls() == 2);
-
-            Function<int()> copy = original;
-
-            REQUIRE(!original.isEmpty());
-
-            REQUIRE(!copy.isEmpty());
-
-            REQUIRE(session.getCreatedInstances() == 4);
-
-            REQUIRE(session.getCopyConstructorCalls() == 1);
-
-            REQUIRE(session.getMoveConstructorCalls() == 2);
-
-            REQUIRE(session.getCopyAssignmentCalls() == 0);
-
-            REQUIRE(session.getMoveAssignmentCalls() == 0);
-
-            REQUIRE(session.getDestructorCalls() == 2);
-
-            REQUIRE(original() == 13);
-
-            REQUIRE(copy() == 13);
-        }
-
-        REQUIRE(session.getCreatedInstances() == 4);
-
-        REQUIRE(session.getCopyConstructorCalls() == 1);
-
-        REQUIRE(session.getMoveConstructorCalls() == 2);
-
-        REQUIRE(session.getCopyAssignmentCalls() == 0);
-
-        REQUIRE(session.getMoveAssignmentCalls() == 0);
-
-        REQUIRE(session.getDestructorCalls() == 4);
-    }
-
     SECTION("move construction")
     {
         auto session = TrackedObjectSession{};
 
         {
-            Function<int()> original = [object = TrackedObject{session}]() { return 17; };
+            UniqueFunction<int()> original = [object = TrackedObject{session}]() { return 17; };
 
             REQUIRE(!original.isEmpty());
 
@@ -320,7 +269,7 @@ TEST_CASE("function")
 
             REQUIRE(session.getDestructorCalls() == 2);
 
-            Function<int()> moved = std::move(original);
+            UniqueFunction<int()> moved = std::move(original);
 
             REQUIRE(original.isEmpty());
 
@@ -356,65 +305,45 @@ TEST_CASE("function")
         REQUIRE(session.getDestructorCalls() == 3);
     }
 
-    SECTION("copy assignment")
+    SECTION("move construction from Function")
     {
         auto session = TrackedObjectSession{};
 
         {
-            Function<int()> original = [object = TrackedObject{session}]() { return 17; };
+            Function<int()> original = [object = TrackedObject{session}]() { return 121; };
 
-            Function<int()> assignee = [object = TrackedObject{session}]() { return 31; };
+            UniqueFunction<int()> function = std::move(original);
 
-            REQUIRE(session.getCreatedInstances() == 6);
+            REQUIRE(!function.isEmpty());
+
+            REQUIRE(session.getCreatedInstances() == 3);
 
             REQUIRE(session.getCopyConstructorCalls() == 0);
 
-            REQUIRE(session.getMoveConstructorCalls() == 4);
+            REQUIRE(session.getMoveConstructorCalls() == 2);
 
             REQUIRE(session.getCopyAssignmentCalls() == 0);
 
             REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-            REQUIRE(session.getDestructorCalls() == 4);
+            REQUIRE(session.getDestructorCalls() == 2);
 
-            REQUIRE(!original.isEmpty());
+            REQUIRE(function() == 121);
 
-            REQUIRE(!assignee.isEmpty());
-
-            assignee = original;
-
-            REQUIRE(session.getCreatedInstances() == 7);
-
-            REQUIRE(session.getCopyConstructorCalls() == 1);
-
-            REQUIRE(session.getMoveConstructorCalls() == 4);
-
-            REQUIRE(session.getCopyAssignmentCalls() == 0);
-
-            REQUIRE(session.getMoveAssignmentCalls() == 0);
-
-            REQUIRE(session.getDestructorCalls() == 5);
-
-            REQUIRE(!original.isEmpty());
-
-            REQUIRE(!assignee.isEmpty());
-
-            REQUIRE(assignee() == 17);
-
-            REQUIRE(original() == 17);
+            REQUIRE_THROW(std::logic_error, original());
         }
 
-        REQUIRE(session.getCreatedInstances() == 7);
+        REQUIRE(session.getCreatedInstances() == 3);
 
-        REQUIRE(session.getCopyConstructorCalls() == 1);
+        REQUIRE(session.getCopyConstructorCalls() == 0);
 
-        REQUIRE(session.getMoveConstructorCalls() == 4);
+        REQUIRE(session.getMoveConstructorCalls() == 2);
 
         REQUIRE(session.getCopyAssignmentCalls() == 0);
 
         REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-        REQUIRE(session.getDestructorCalls() == 7);
+        REQUIRE(session.getDestructorCalls() == 3);
     }
 
     SECTION("move assignment")
@@ -422,9 +351,9 @@ TEST_CASE("function")
         auto session = TrackedObjectSession{};
 
         {
-            Function<int()> original = [object = TrackedObject{session}]() { return 17; };
+            UniqueFunction<int()> original = [object = TrackedObject{session}]() { return 17; };
 
-            Function<int()> assignee = [object = TrackedObject{session}]() { return 31; };
+            UniqueFunction<int()> assignee = [object = TrackedObject{session}]() { return 31; };
 
             REQUIRE(session.getCreatedInstances() == 6);
 
@@ -485,7 +414,7 @@ TEST_CASE("function")
         {
             auto parameter = TrackedObject{session};
 
-            Function<void(TrackedObject&)> function = [](TrackedObject&) {};
+            UniqueFunction<void(TrackedObject&)> function = [](TrackedObject&) {};
 
             function(parameter);
 
@@ -522,7 +451,7 @@ TEST_CASE("function")
         {
             const auto parameter = TrackedObject{session};
 
-            Function<void(const TrackedObject&)> function = [](const TrackedObject&) {};
+            UniqueFunction<void(const TrackedObject&)> function = [](const TrackedObject&) {};
 
             function(parameter);
 
@@ -557,7 +486,7 @@ TEST_CASE("function")
         auto session = TrackedObjectSession{};
 
         {
-            Function<void(TrackedObject&&)> function = [](TrackedObject&&) {};
+            UniqueFunction<void(TrackedObject&&)> function = [](TrackedObject&&) {};
 
             function(TrackedObject{session});
 
@@ -592,7 +521,7 @@ TEST_CASE("function")
         auto session = TrackedObjectSession{};
 
         {
-            Function<void(const TrackedObject&&)> function = [](const TrackedObject&&) {};
+            UniqueFunction<void(const TrackedObject&&)> function = [](const TrackedObject&&) {};
 
             function(TrackedObject{session});
 
@@ -627,7 +556,7 @@ TEST_CASE("function")
         auto session = TrackedObjectSession{};
 
         {
-            Function<void(TrackedObject)> function = [](TrackedObject) {};
+            UniqueFunction<void(TrackedObject)> function = [](TrackedObject) {};
 
             function(TrackedObject{session});
 
@@ -661,36 +590,36 @@ TEST_CASE("function")
     {
         SECTION("positive")
         {
-            REQUIRE(std::is_assignable_v<Function<void(int)>, void (*)(int)>);
+            REQUIRE(std::is_assignable_v<UniqueFunction<void()>, Function<void()>>);
 
-            REQUIRE(std::is_assignable_v<Function<void(int&)>, void (*)(int&)>);
+            REQUIRE(std::is_assignable_v<UniqueFunction<void(int)>, void (*)(int)>);
 
-            REQUIRE(std::is_assignable_v<Function<void(const int)>, void (*)(int)>);
+            REQUIRE(std::is_assignable_v<UniqueFunction<void(int&)>, void (*)(int&)>);
 
-            REQUIRE(std::is_assignable_v<Function<void(int)>, void (*)(const int)>);
+            REQUIRE(std::is_assignable_v<UniqueFunction<void(const int)>, void (*)(int)>);
+
+            REQUIRE(std::is_assignable_v<UniqueFunction<void(int)>, void (*)(const int)>);
         }
 
         SECTION("negative")
         {
-            REQUIRE(!std::is_assignable_v<Function<void()>, UniqueFunction<void()>>);
+            REQUIRE(!std::is_assignable_v<UniqueFunction<void(int&)>, void (*)(int)>);
 
-            REQUIRE(!std::is_assignable_v<Function<void(int&)>, void (*)(int)>);
+            REQUIRE(!std::is_assignable_v<UniqueFunction<void(int)>, void (*)(int&)>);
 
-            REQUIRE(!std::is_assignable_v<Function<void(int)>, void (*)(int&)>);
+            REQUIRE(!std::is_assignable_v<UniqueFunction<void(int&&)>, void (*)(int&)>);
 
-            REQUIRE(!std::is_assignable_v<Function<void(int&&)>, void (*)(int&)>);
+            REQUIRE(!std::is_assignable_v<UniqueFunction<void(const int&&)>, void (*)(int&&)>);
 
-            REQUIRE(!std::is_assignable_v<Function<void(const int&&)>, void (*)(int&&)>);
+            REQUIRE(!std::is_assignable_v<UniqueFunction<void(const int&)>, void (*)(int&)>);
 
-            REQUIRE(!std::is_assignable_v<Function<void(const int&)>, void (*)(int&)>);
+            REQUIRE(!std::is_assignable_v<UniqueFunction<void(int&&)>, void (*)(const int&&)>);
 
-            REQUIRE(!std::is_assignable_v<Function<void(int&&)>, void (*)(const int&&)>);
+            REQUIRE(!std::is_assignable_v<UniqueFunction<void(int&)>, void (*)(const int&)>);
 
-            REQUIRE(!std::is_assignable_v<Function<void(int&)>, void (*)(const int&)>);
+            REQUIRE(!std::is_assignable_v<UniqueFunction<double()>, int (*)()>);
 
-            REQUIRE(!std::is_assignable_v<Function<double()>, int (*)()>);
-
-            REQUIRE(!std::is_assignable_v<Function<void(double)>, void (*)(int)>);
+            REQUIRE(!std::is_assignable_v<UniqueFunction<void(double)>, void (*)(int)>);
         }
     }
 }
