@@ -15,7 +15,7 @@ enum class ScopeGuardStrategy
     fireOnExit,
 };
 
-template<ScopeGuardStrategy scopeGuardStrategy, typename FunctorType>
+template<ScopeGuardStrategy strategy, typename FunctorType>
 class ScopeGuard
 {
 public:
@@ -25,14 +25,15 @@ public:
     {
     }
 
+    ScopeGuard() = delete;
     ScopeGuard(const ScopeGuard&) = delete;
-    ScopeGuard(ScopeGuard&&) = delete;
+    ScopeGuard(ScopeGuard&&) noexcept = delete;
     ScopeGuard& operator=(const ScopeGuard&) = delete;
-    ScopeGuard& operator=(ScopeGuard&&) = delete;
+    ScopeGuard& operator=(ScopeGuard&&) noexcept = delete;
 
     ~ScopeGuard() noexcept
     {
-        if constexpr (scopeGuardStrategy == ScopeGuardStrategy::fireOnFailure)
+        if constexpr (strategy == ScopeGuardStrategy::fireOnFailure)
         {
             const auto currentUncaughtExceptions = std::uncaught_exceptions();
 
@@ -41,7 +42,7 @@ public:
                 functor_();
             }
         }
-        else if constexpr (scopeGuardStrategy == ScopeGuardStrategy::fireOnSuccess)
+        else if constexpr (strategy == ScopeGuardStrategy::fireOnSuccess)
         {
             const auto currentUncaughtExceptions = std::uncaught_exceptions();
 
@@ -50,7 +51,7 @@ public:
                 functor_();
             }
         }
-        else if constexpr (scopeGuardStrategy == ScopeGuardStrategy::fireOnExit)
+        else if constexpr (strategy == ScopeGuardStrategy::fireOnExit)
         {
             functor_();
         }
