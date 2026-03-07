@@ -36,6 +36,8 @@ class FunctionImplementation<Copyable, Return(Arguments...)>
 public:
     using FunctionPointer = Return (*)(Arguments... arguments);
 
+    friend class FunctionImplementation<!Copyable, Return(Arguments...)>;
+
     FunctionImplementation() : object_{nullptr}, dispatcher_{nullptr}, functionPointer_{nullptr}, invoker_{nullptr}
     {
     }
@@ -69,7 +71,9 @@ public:
         }
     }
 
-    FunctionImplementation(FunctionImplementation&& other) noexcept
+    template<bool OtherCopyable>
+    FunctionImplementation(FunctionImplementation<OtherCopyable, Return(Arguments...)>&& other) noexcept
+        requires(!Copyable || OtherCopyable)
         : object_{other.object_},
           dispatcher_{other.dispatcher_},
           functionPointer_{other.functionPointer_},
