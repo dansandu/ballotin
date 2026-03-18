@@ -60,15 +60,11 @@ public:
 
     FunctionImplementation(const FunctionImplementation& other)
         requires Copyable
-        : object_{nullptr},
+        : object_{other.dispatcher_ ? other.dispatcher_(copyOperation, other.object_) : nullptr},
           dispatcher_{other.dispatcher_},
           functionPointer_{other.functionPointer_},
           invoker_{other.invoker_}
     {
-        if (dispatcher_)
-        {
-            object_ = dispatcher_(copyOperation, other.object_);
-        }
     }
 
     template<bool OtherCopyable>
@@ -142,7 +138,7 @@ public:
     {
         if (dispatcher_)
         {
-            dispatcher_(destructOperation, object_);
+            object_ = dispatcher_(destructOperation, object_);
         }
     }
 
