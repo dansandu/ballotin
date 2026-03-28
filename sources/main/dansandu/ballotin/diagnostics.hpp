@@ -65,42 +65,44 @@ private:
 class TrackedObject
 {
 public:
-    explicit TrackedObject(TrackedObjectSession& session) : session_{session}
+    explicit TrackedObject(TrackedObjectSession& session) : session_{&session}
     {
-        ++session_.createdInstances_;
+        ++session_->createdInstances_;
     }
 
     TrackedObject(const TrackedObject& other) : session_{other.session_}
     {
-        ++session_.createdInstances_;
-        ++session_.copyConstructorCalls_;
+        ++session_->createdInstances_;
+        ++session_->copyConstructorCalls_;
     }
 
     TrackedObject(TrackedObject&& other) noexcept : session_{other.session_}
     {
-        ++session_.createdInstances_;
-        ++session_.moveConstructorCalls_;
+        ++session_->createdInstances_;
+        ++session_->moveConstructorCalls_;
     }
 
     TrackedObject& operator=(const TrackedObject& other)
     {
-        ++session_.copyAssignmentCalls_;
+        session_ = other.session_;
+        ++session_->copyAssignmentCalls_;
         return *this;
     }
 
     TrackedObject& operator=(TrackedObject&& other) noexcept
     {
-        ++session_.moveAssignmentCalls_;
+        session_ = other.session_;
+        ++session_->moveAssignmentCalls_;
         return *this;
     }
 
     ~TrackedObject() noexcept
     {
-        ++session_.destructorCalls_;
+        ++session_->destructorCalls_;
     }
 
 private:
-    TrackedObjectSession& session_;
+    TrackedObjectSession* session_;
 };
 
 }

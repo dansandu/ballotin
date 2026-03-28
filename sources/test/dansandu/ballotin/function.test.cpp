@@ -90,44 +90,44 @@ TEST_CASE("function")
 
             REQUIRE(!function.isEmpty());
 
-            REQUIRE(session.getCreatedInstances() == 3);
+            REQUIRE(session.getCreatedInstances() == 2);
 
             REQUIRE(session.getCopyConstructorCalls() == 0);
 
-            REQUIRE(session.getMoveConstructorCalls() == 2);
+            REQUIRE(session.getMoveConstructorCalls() == 1);
 
             REQUIRE(session.getCopyAssignmentCalls() == 0);
 
             REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-            REQUIRE(session.getDestructorCalls() == 2);
+            REQUIRE(session.getDestructorCalls() == 1);
 
             function();
 
-            REQUIRE(session.getCreatedInstances() == 3);
+            REQUIRE(session.getCreatedInstances() == 2);
 
             REQUIRE(session.getCopyConstructorCalls() == 0);
 
-            REQUIRE(session.getMoveConstructorCalls() == 2);
+            REQUIRE(session.getMoveConstructorCalls() == 1);
 
             REQUIRE(session.getCopyAssignmentCalls() == 0);
 
             REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-            REQUIRE(session.getDestructorCalls() == 2);
+            REQUIRE(session.getDestructorCalls() == 1);
         }
 
-        REQUIRE(session.getCreatedInstances() == 3);
+        REQUIRE(session.getCreatedInstances() == 2);
 
         REQUIRE(session.getCopyConstructorCalls() == 0);
 
-        REQUIRE(session.getMoveConstructorCalls() == 2);
+        REQUIRE(session.getMoveConstructorCalls() == 1);
 
         REQUIRE(session.getCopyAssignmentCalls() == 0);
 
         REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-        REQUIRE(session.getDestructorCalls() == 3);
+        REQUIRE(session.getDestructorCalls() == 2);
     }
 
     SECTION("construction from mutable lambda object")
@@ -139,44 +139,44 @@ TEST_CASE("function")
 
             REQUIRE(!function.isEmpty());
 
-            REQUIRE(session.getCreatedInstances() == 3);
+            REQUIRE(session.getCreatedInstances() == 2);
 
             REQUIRE(session.getCopyConstructorCalls() == 0);
 
-            REQUIRE(session.getMoveConstructorCalls() == 2);
+            REQUIRE(session.getMoveConstructorCalls() == 1);
 
             REQUIRE(session.getCopyAssignmentCalls() == 0);
 
             REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-            REQUIRE(session.getDestructorCalls() == 2);
+            REQUIRE(session.getDestructorCalls() == 1);
 
             function();
 
-            REQUIRE(session.getCreatedInstances() == 3);
+            REQUIRE(session.getCreatedInstances() == 2);
 
             REQUIRE(session.getCopyConstructorCalls() == 0);
 
-            REQUIRE(session.getMoveConstructorCalls() == 2);
+            REQUIRE(session.getMoveConstructorCalls() == 1);
 
             REQUIRE(session.getCopyAssignmentCalls() == 0);
 
             REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-            REQUIRE(session.getDestructorCalls() == 2);
+            REQUIRE(session.getDestructorCalls() == 1);
         }
 
-        REQUIRE(session.getCreatedInstances() == 3);
+        REQUIRE(session.getCreatedInstances() == 2);
 
         REQUIRE(session.getCopyConstructorCalls() == 0);
 
-        REQUIRE(session.getMoveConstructorCalls() == 2);
+        REQUIRE(session.getMoveConstructorCalls() == 1);
 
         REQUIRE(session.getCopyAssignmentCalls() == 0);
 
         REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-        REQUIRE(session.getDestructorCalls() == 3);
+        REQUIRE(session.getDestructorCalls() == 2);
     }
 
     SECTION("construction from invokable type")
@@ -251,17 +251,17 @@ TEST_CASE("function")
 
             REQUIRE(!original.isEmpty());
 
-            REQUIRE(session.getCreatedInstances() == 3);
+            REQUIRE(session.getCreatedInstances() == 2);
 
             REQUIRE(session.getCopyConstructorCalls() == 0);
 
-            REQUIRE(session.getMoveConstructorCalls() == 2);
+            REQUIRE(session.getMoveConstructorCalls() == 1);
 
             REQUIRE(session.getCopyAssignmentCalls() == 0);
 
             REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-            REQUIRE(session.getDestructorCalls() == 2);
+            REQUIRE(session.getDestructorCalls() == 1);
 
             Function<int()> copy = original;
 
@@ -269,34 +269,34 @@ TEST_CASE("function")
 
             REQUIRE(!copy.isEmpty());
 
-            REQUIRE(session.getCreatedInstances() == 4);
+            REQUIRE(session.getCreatedInstances() == 3);
 
             REQUIRE(session.getCopyConstructorCalls() == 1);
 
-            REQUIRE(session.getMoveConstructorCalls() == 2);
+            REQUIRE(session.getMoveConstructorCalls() == 1);
 
             REQUIRE(session.getCopyAssignmentCalls() == 0);
 
             REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-            REQUIRE(session.getDestructorCalls() == 2);
+            REQUIRE(session.getDestructorCalls() == 1);
 
             REQUIRE(original() == 13);
 
             REQUIRE(copy() == 13);
         }
 
-        REQUIRE(session.getCreatedInstances() == 4);
+        REQUIRE(session.getCreatedInstances() == 3);
 
         REQUIRE(session.getCopyConstructorCalls() == 1);
 
-        REQUIRE(session.getMoveConstructorCalls() == 2);
+        REQUIRE(session.getMoveConstructorCalls() == 1);
 
         REQUIRE(session.getCopyAssignmentCalls() == 0);
 
         REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-        REQUIRE(session.getDestructorCalls() == 4);
+        REQUIRE(session.getDestructorCalls() == 3);
     }
 
     SECTION("move construction")
@@ -308,17 +308,17 @@ TEST_CASE("function")
 
             REQUIRE(!original.isEmpty());
 
-            REQUIRE(session.getCreatedInstances() == 3);
+            REQUIRE(session.getCreatedInstances() == 2);
 
             REQUIRE(session.getCopyConstructorCalls() == 0);
 
-            REQUIRE(session.getMoveConstructorCalls() == 2);
+            REQUIRE(session.getMoveConstructorCalls() == 1);
 
             REQUIRE(session.getCopyAssignmentCalls() == 0);
 
             REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-            REQUIRE(session.getDestructorCalls() == 2);
+            REQUIRE(session.getDestructorCalls() == 1);
 
             Function<int()> moved = std::move(original);
 
@@ -326,34 +326,34 @@ TEST_CASE("function")
 
             REQUIRE(!moved.isEmpty());
 
-            REQUIRE(session.getCreatedInstances() == 3);
+            REQUIRE(session.getCreatedInstances() == 2);
 
             REQUIRE(session.getCopyConstructorCalls() == 0);
 
-            REQUIRE(session.getMoveConstructorCalls() == 2);
+            REQUIRE(session.getMoveConstructorCalls() == 1);
 
             REQUIRE(session.getCopyAssignmentCalls() == 0);
 
             REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-            REQUIRE(session.getDestructorCalls() == 2);
+            REQUIRE(session.getDestructorCalls() == 1);
 
             REQUIRE_THROW(std::logic_error, original());
 
             REQUIRE(moved() == 17);
         }
 
-        REQUIRE(session.getCreatedInstances() == 3);
+        REQUIRE(session.getCreatedInstances() == 2);
 
         REQUIRE(session.getCopyConstructorCalls() == 0);
 
-        REQUIRE(session.getMoveConstructorCalls() == 2);
+        REQUIRE(session.getMoveConstructorCalls() == 1);
 
         REQUIRE(session.getCopyAssignmentCalls() == 0);
 
         REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-        REQUIRE(session.getDestructorCalls() == 3);
+        REQUIRE(session.getDestructorCalls() == 2);
     }
 
     SECTION("copy assignment")
@@ -365,17 +365,17 @@ TEST_CASE("function")
 
             Function<int()> assignee = [object = TrackedObject{session}]() { return 31; };
 
-            REQUIRE(session.getCreatedInstances() == 6);
+            REQUIRE(session.getCreatedInstances() == 4);
 
             REQUIRE(session.getCopyConstructorCalls() == 0);
 
-            REQUIRE(session.getMoveConstructorCalls() == 4);
+            REQUIRE(session.getMoveConstructorCalls() == 2);
 
             REQUIRE(session.getCopyAssignmentCalls() == 0);
 
             REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-            REQUIRE(session.getDestructorCalls() == 4);
+            REQUIRE(session.getDestructorCalls() == 2);
 
             REQUIRE(!original.isEmpty());
 
@@ -383,17 +383,17 @@ TEST_CASE("function")
 
             assignee = original;
 
-            REQUIRE(session.getCreatedInstances() == 7);
+            REQUIRE(session.getCreatedInstances() == 5);
 
             REQUIRE(session.getCopyConstructorCalls() == 1);
 
-            REQUIRE(session.getMoveConstructorCalls() == 4);
+            REQUIRE(session.getMoveConstructorCalls() == 2);
 
             REQUIRE(session.getCopyAssignmentCalls() == 0);
 
             REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-            REQUIRE(session.getDestructorCalls() == 5);
+            REQUIRE(session.getDestructorCalls() == 3);
 
             REQUIRE(!original.isEmpty());
 
@@ -404,17 +404,17 @@ TEST_CASE("function")
             REQUIRE(original() == 17);
         }
 
-        REQUIRE(session.getCreatedInstances() == 7);
+        REQUIRE(session.getCreatedInstances() == 5);
 
         REQUIRE(session.getCopyConstructorCalls() == 1);
 
-        REQUIRE(session.getMoveConstructorCalls() == 4);
+        REQUIRE(session.getMoveConstructorCalls() == 2);
 
         REQUIRE(session.getCopyAssignmentCalls() == 0);
 
         REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-        REQUIRE(session.getDestructorCalls() == 7);
+        REQUIRE(session.getDestructorCalls() == 5);
     }
 
     SECTION("move assignment")
@@ -426,17 +426,17 @@ TEST_CASE("function")
 
             Function<int()> assignee = [object = TrackedObject{session}]() { return 31; };
 
-            REQUIRE(session.getCreatedInstances() == 6);
+            REQUIRE(session.getCreatedInstances() == 4);
 
             REQUIRE(session.getCopyConstructorCalls() == 0);
 
-            REQUIRE(session.getMoveConstructorCalls() == 4);
+            REQUIRE(session.getMoveConstructorCalls() == 2);
 
             REQUIRE(session.getCopyAssignmentCalls() == 0);
 
             REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-            REQUIRE(session.getDestructorCalls() == 4);
+            REQUIRE(session.getDestructorCalls() == 2);
 
             REQUIRE(!original.isEmpty());
 
@@ -444,17 +444,17 @@ TEST_CASE("function")
 
             assignee = std::move(original);
 
-            REQUIRE(session.getCreatedInstances() == 6);
+            REQUIRE(session.getCreatedInstances() == 4);
 
             REQUIRE(session.getCopyConstructorCalls() == 0);
 
-            REQUIRE(session.getMoveConstructorCalls() == 4);
+            REQUIRE(session.getMoveConstructorCalls() == 2);
 
             REQUIRE(session.getCopyAssignmentCalls() == 0);
 
             REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-            REQUIRE(session.getDestructorCalls() == 5);
+            REQUIRE(session.getDestructorCalls() == 3);
 
             REQUIRE(original.isEmpty());
 
@@ -465,17 +465,17 @@ TEST_CASE("function")
             REQUIRE_THROW(std::logic_error, original());
         }
 
-        REQUIRE(session.getCreatedInstances() == 6);
+        REQUIRE(session.getCreatedInstances() == 4);
 
         REQUIRE(session.getCopyConstructorCalls() == 0);
 
-        REQUIRE(session.getMoveConstructorCalls() == 4);
+        REQUIRE(session.getMoveConstructorCalls() == 2);
 
         REQUIRE(session.getCopyAssignmentCalls() == 0);
 
         REQUIRE(session.getMoveAssignmentCalls() == 0);
 
-        REQUIRE(session.getDestructorCalls() == 6);
+        REQUIRE(session.getDestructorCalls() == 4);
     }
 
     SECTION("argument passing by mutable left value reference")
