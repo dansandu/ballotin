@@ -49,8 +49,8 @@ public:
 
     template<typename T>
     FunctionImplementation(T&& object)
-        requires !IsFunctionTemplate<std::decay_t<T>>::value && !std::is_pointer_v<std::decay_t<T>> &&
-                     dansandu::ballotin::type_traits::Invokable<T, Return, Arguments...>
+        requires(!IsFunctionTemplate<std::decay_t<T>>::value && !std::is_pointer_v<std::decay_t<T>> &&
+                 dansandu::ballotin::type_traits::Invokable<T, Return, Arguments...>)
         : object_{new std::decay_t<T>{std::forward<T>(object)}},
           dispatcher_{InvokableTraits<std::decay_t<T>>::dispatcher},
           functionPointer_{nullptr},

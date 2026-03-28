@@ -16,17 +16,17 @@ TEST_CASE("binary")
 {
     SECTION("number of bits to number of bytes")
     {
-        REQUIRE(numberOfBitsToNumberOfBytes(0) == 0);
+        REQUIRE(numberOfBitsToNumberOfBytes(0) == 0uz);
 
-        REQUIRE(numberOfBitsToNumberOfBytes(2) == 1);
+        REQUIRE(numberOfBitsToNumberOfBytes(2) == 1uz);
 
-        REQUIRE(numberOfBitsToNumberOfBytes(8) == 1);
+        REQUIRE(numberOfBitsToNumberOfBytes(8) == 1uz);
 
-        REQUIRE(numberOfBitsToNumberOfBytes(12) == 2);
+        REQUIRE(numberOfBitsToNumberOfBytes(12) == 2uz);
 
-        REQUIRE(numberOfBitsToNumberOfBytes(16) == 2);
+        REQUIRE(numberOfBitsToNumberOfBytes(16) == 2uz);
 
-        REQUIRE(numberOfBitsToNumberOfBytes(17) == 3);
+        REQUIRE(numberOfBitsToNumberOfBytes(17) == 3uz);
     }
 
     SECTION("push bits least significant")
@@ -43,13 +43,9 @@ TEST_CASE("binary")
 
             REQUIRE(output == expectedOutput);
 
-            const size_t expectedByteCount = 1;
+            REQUIRE(output.size() == 1uz);
 
-            REQUIRE(output.size() == expectedByteCount);
-
-            const size_t expectedBitsCount = 3;
-
-            REQUIRE(bitsCount == expectedBitsCount);
+            REQUIRE(bitsCount == 3uz);
         }
 
         SECTION("previous byte parital write")
@@ -64,13 +60,9 @@ TEST_CASE("binary")
 
             REQUIRE(output == expectedOutput);
 
-            const size_t expectedByteCount = 1;
+            REQUIRE(output.size() == 1uz);
 
-            REQUIRE(output.size() == expectedByteCount);
-
-            const size_t expectedBitsCount = 7;
-
-            REQUIRE(bitsCount == expectedBitsCount);
+            REQUIRE(bitsCount == 7uz);
         }
 
         SECTION("previous byte write extending to new byte")
@@ -85,13 +77,9 @@ TEST_CASE("binary")
 
             REQUIRE(output == expectedOutput);
 
-            const size_t expectedByteCount = 2;
+            REQUIRE(output.size() == 2uz);
 
-            REQUIRE(output.size() == expectedByteCount);
-
-            const size_t expectedBitsCount = 12;
-
-            REQUIRE(bitsCount == expectedBitsCount);
+            REQUIRE(bitsCount == 12uz);
         }
 
         SECTION("previous byte fill")
@@ -106,13 +94,9 @@ TEST_CASE("binary")
 
             REQUIRE(output == expectedOutput);
 
-            const size_t expectedByteCount = 2;
+            REQUIRE(output.size() == 2uz);
 
-            REQUIRE(output.size() == expectedByteCount);
-
-            const size_t expectedBitsCount = 16;
-
-            REQUIRE(bitsCount == expectedBitsCount);
+            REQUIRE(bitsCount == 16uz);
         }
 
         SECTION("new byte fill")
@@ -127,13 +111,9 @@ TEST_CASE("binary")
 
             REQUIRE(output == expectedOutput);
 
-            const size_t expectedByteCount = 4;
+            REQUIRE(output.size() == 4uz);
 
-            REQUIRE(output.size() == expectedByteCount);
-
-            const size_t expectedBitsCount = 32;
-
-            REQUIRE(bitsCount == expectedBitsCount);
+            REQUIRE(bitsCount == 32uz);
         }
 
         SECTION("sequence")
@@ -156,9 +136,7 @@ TEST_CASE("binary")
 
             REQUIRE(output == expectedOutput);
 
-            const size_t expectedBitsCount = 54;
-
-            REQUIRE(bitsCount == expectedBitsCount);
+            REQUIRE(bitsCount == 54uz);
         }
 
         SECTION("large append")
@@ -184,11 +162,9 @@ TEST_CASE("binary")
 
             const BytesType expectedOutput = {0b11110100};
 
-            const size_t expectedBitsCount = 8;
-
             REQUIRE(output == expectedOutput);
 
-            REQUIRE(bitsCount == expectedBitsCount);
+            REQUIRE(bitsCount == 8uz);
         }
 
         SECTION("byte underflow")
@@ -222,15 +198,13 @@ TEST_CASE("binary")
 
             size_t bitsCount = 0;
 
-            const size_t expectedBitsCount = 12;
-
             pushBitsMostSignificant(output, bitsCount, 0b010110, 6);
 
             pushBitsMostSignificant(output, bitsCount, 0b111011, 6);
 
             const BytesType expectedOutput = {0b01011011, 0b10110000};
 
-            REQUIRE(bitsCount == expectedBitsCount);
+            REQUIRE(bitsCount == 12uz);
 
             REQUIRE(output == expectedOutput);
         }
@@ -246,11 +220,9 @@ TEST_CASE("binary")
 
             const size_t count = 0;
 
-            const size_t expectedOutput = 0;
-
             const auto output = getMostSignificantBits(input, offset, count);
 
-            REQUIRE(output == expectedOutput);
+            REQUIRE(output == 0uz);
         }
 
         SECTION("bits [0, 5)")
@@ -259,11 +231,9 @@ TEST_CASE("binary")
 
             const size_t count = 5;
 
-            const size_t expectedOutput = 0b10110;
-
             const auto output = getMostSignificantBits(input, offset, count);
 
-            REQUIRE(output == expectedOutput);
+            REQUIRE(output == 0b10110uz);
         }
 
         SECTION("bits [7, 20)")
@@ -272,11 +242,9 @@ TEST_CASE("binary")
 
             const size_t count = 13;
 
-            const size_t expectedOutput = 0b1011110111110;
-
             const auto output = getMostSignificantBits(input, offset, count);
 
-            REQUIRE(output == expectedOutput);
+            REQUIRE(output == 0b1011110111110uz);
         }
 
         SECTION("bits [13, 27)")
@@ -285,11 +253,9 @@ TEST_CASE("binary")
 
             const size_t count = 14;
 
-            const size_t expectedOutput = 0b01111101111110;
-
             const auto output = getMostSignificantBits(input, offset, count);
 
-            REQUIRE(output == expectedOutput);
+            REQUIRE(output == 0b01111101111110uz);
         }
 
         SECTION("all bits")
@@ -298,11 +264,9 @@ TEST_CASE("binary")
 
             const size_t count = 32;
 
-            const size_t expectedOutput = 0b10110111011110111110111111010100U;
-
             const auto output = getMostSignificantBits(input, offset, count);
 
-            REQUIRE(output == expectedOutput);
+            REQUIRE(output == 0b10110111011110111110111111010100uz);
         }
 
         SECTION("throws if bit count overflows input")
