@@ -94,4 +94,21 @@ TEST_CASE("scope")
             REQUIRE(triggered);
         }
     }
+
+    SECTION("multiple guards")
+    {
+        auto counter = 0;
+
+        {
+            SCOPE_EXIT([&] { ++counter; });
+
+            SCOPE_EXIT([&] { ++counter; });
+
+            SCOPE_EXIT([&] { ++counter; });
+
+            REQUIRE(counter == 0);
+        }
+
+        REQUIRE(counter == 3);
+    }
 }
