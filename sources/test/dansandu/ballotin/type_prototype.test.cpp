@@ -128,7 +128,14 @@ TEST_CASE("type_prototype")
         REQUIRE(b.toString() == "4");
     }
 
-    SECTION("stream operations #1")
+    SECTION("wide string conversion")
+    {
+        REQUIRE(a.toWideString() == L"9");
+
+        REQUIRE(b.toWideString() == L"4");
+    }
+
+    SECTION("stream conversion function")
     {
         auto stream = std::stringstream{};
 
@@ -137,13 +144,31 @@ TEST_CASE("type_prototype")
         REQUIRE(stream.str() == "9");
     }
 
-    SECTION("stream operations #2")
+    SECTION("wide stream conversion function")
+    {
+        auto stream = std::wstringstream{};
+
+        stream << a;
+
+        REQUIRE(stream.str() == L"9");
+    }
+
+    SECTION("stream conversion method")
     {
         auto stream = std::stringstream{};
 
-        stream << b;
+        a.toStream(stream);
 
-        REQUIRE(stream.str() == "4");
+        REQUIRE(stream.str() == "9");
+    }
+
+    SECTION("wide stream conversion method")
+    {
+        auto stream = std::wstringstream{};
+
+        a.toStream(stream);
+
+        REQUIRE(stream.str() == L"9");
     }
 
     SECTION("relational operations")
