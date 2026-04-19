@@ -98,6 +98,12 @@ public:
         return stream << integerPrototype.underlying_;
     }
 
+    friend inline std::wostream& operator<<(std::wostream& stream, const TypePrototype& integerPrototype)
+        requires(hasFeatures(TypeFeature::stringConversion))
+    {
+        return stream << integerPrototype.underlying_;
+    }
+
     using UnderlyingType = Underlying;
 
     constexpr TypePrototype() : underlying_{defaultValue}
@@ -176,6 +182,24 @@ public:
         requires(hasFeatures(TypeFeature::stringConversion))
     {
         return std::to_string(underlying_);
+    }
+
+    std::wstring toWideString() const
+        requires(hasFeatures(TypeFeature::stringConversion))
+    {
+        return std::to_wstring(underlying_);
+    }
+
+    void toStream(std::ostream& stream)
+        requires(hasFeatures(TypeFeature::stringConversion))
+    {
+        stream << underlying_;
+    }
+
+    void toStream(std::wostream& stream)
+        requires(hasFeatures(TypeFeature::stringConversion))
+    {
+        stream << underlying_;
     }
 
 private:
