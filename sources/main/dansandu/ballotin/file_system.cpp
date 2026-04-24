@@ -1,5 +1,5 @@
 #include "dansandu/ballotin/file_system.hpp"
-#include "dansandu/ballotin/exception.hpp"
+#include "dansandu/journey/exception.hpp"
 
 #include <fstream>
 #include <streambuf>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "dansandu/ballotin/exception.hpp"
 #include "dansandu/ballotin/type_traits.hpp"
+#include "dansandu/journey/exception.hpp"
 
 #include <concepts>
 #include <type_traits>

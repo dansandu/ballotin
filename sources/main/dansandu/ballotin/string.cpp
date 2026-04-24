@@ -1,5 +1,5 @@
 #include "dansandu/ballotin/string.hpp"
-#include "dansandu/ballotin/exception.hpp"
+#include "dansandu/journey/exception.hpp"
 
 #include <algorithm>
 #include <sstream>
