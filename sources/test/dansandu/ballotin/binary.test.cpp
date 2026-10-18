@@ -152,6 +152,21 @@ TEST_CASE("binary")
             REQUIRE(output == expectedOutput);
         }
 
+        SECTION("full width append")
+        {
+            BytesType output = {0b00000001};
+
+            size_t bitsCount = 1;
+
+            pushBitsLeastSignificant(output, bitsCount, 0xFEDCBA9876543210uz, 64);
+
+            const BytesType expectedOutput = {0x21, 0x64, 0xA8, 0xEC, 0x30, 0x75, 0xB9, 0xFD, 0x01};
+
+            REQUIRE(bitsCount == 65uz);
+
+            REQUIRE(output == expectedOutput);
+        }
+
         SECTION("byte overflow")
         {
             BytesType output = {0b00110100};
@@ -205,6 +220,21 @@ TEST_CASE("binary")
             const BytesType expectedOutput = {0b01011011, 0b10110000};
 
             REQUIRE(bitsCount == 12uz);
+
+            REQUIRE(output == expectedOutput);
+        }
+
+        SECTION("full width append")
+        {
+            BytesType output = {0b10000000};
+
+            size_t bitsCount = 1;
+
+            pushBitsMostSignificant(output, bitsCount, 0xFEDCBA9876543210uz, 64);
+
+            const BytesType expectedOutput = {0b11111111, 0x6E, 0x5D, 0x4C, 0x3B, 0x2A, 0x19, 0x08, 0x00};
+
+            REQUIRE(bitsCount == 65uz);
 
             REQUIRE(output == expectedOutput);
         }
@@ -267,6 +297,19 @@ TEST_CASE("binary")
             const auto output = getMostSignificantBits(input, offset, count);
 
             REQUIRE(output == 0b10110111011110111110111111010100uz);
+        }
+
+        SECTION("full width unaligned")
+        {
+            const BytesType largeInput = {0xFF, 0xFE, 0xDC, 0xBA, 0x98, 0x76, 0x54, 0x32, 0x10};
+
+            const size_t offset = 4;
+
+            const size_t count = 64;
+
+            const auto output = getMostSignificantBits(largeInput, offset, count);
+
+            REQUIRE(output == 0xFFEDCBA987654321uz);
         }
 
         SECTION("throws if bit count overflows input")
