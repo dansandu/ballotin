@@ -2,6 +2,8 @@
 
 #include "dansandu/journey/exception.hpp"
 
+#include <cstddef>
+#include <cstdint>
 #include <span>
 #include <vector>
 
@@ -12,7 +14,7 @@ constexpr auto bitsPerByte = size_t{8};
 
 constexpr auto getMask(const size_t bitsCount)
 {
-    return (size_t{1} << bitsCount) - size_t{1};
+    return bitsCount < sizeof(size_t) * bitsPerByte ? (size_t{1} << bitsCount) - size_t{1} : ~size_t{0};
 }
 
 constexpr size_t numberOfBitsToNumberOfBytes(const size_t numberOfBits)
