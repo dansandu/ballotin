@@ -189,4 +189,17 @@ TEST_CASE("type_prototype")
 
         REQUIRE(a >= b);
     }
+
+    SECTION("conversion from size type")
+    {
+        REQUIRE_THROW(std::out_of_range, CustomType::fromSizeType(std::numeric_limits<size_t>::max()));
+
+        REQUIRE_THROW(std::out_of_range, CustomType::fromSizeType(static_cast<unsigned>(-1)));
+
+        REQUIRE(CustomType::fromSizeType(123456).getUnderlying() == 123456);
+
+        const auto integerMaximum = std::numeric_limits<int>::max();
+
+        REQUIRE(CustomType::fromSizeType(integerMaximum).getUnderlying() == integerMaximum);
+    }
 }
