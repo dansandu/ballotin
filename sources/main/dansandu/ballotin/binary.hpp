@@ -10,11 +10,11 @@
 namespace dansandu::ballotin::binary
 {
 
-constexpr auto bitsPerByte = size_t{8};
+constexpr auto bitsPerByte = 8uz;
 
 constexpr auto getMask(const size_t bitsCount)
 {
-    return bitsCount < sizeof(size_t) * bitsPerByte ? (size_t{1} << bitsCount) - size_t{1} : ~size_t{0};
+    return bitsCount < sizeof(size_t) * bitsPerByte ? (1uz << bitsCount) - 1uz : ~0uz;
 }
 
 constexpr size_t numberOfBitsToNumberOfBytes(const size_t numberOfBits)

@@ -17,7 +17,7 @@ namespace
 
 constexpr auto base64PaddingCharacter = '=';
 
-constexpr auto base64BitsPerCharacter = size_t{6};
+constexpr auto base64BitsPerCharacter = 6uz;
 
 constexpr void fillCharaters(const uint8_t start, const uint8_t end, std::array<uint8_t, 64>& output, size_t& offset)
 {
@@ -56,10 +56,10 @@ std::vector<uint8_t> encode64(const std::vector<uint8_t>& bytes)
     const auto inputBitsCount = bytes.size() * bitsPerByte;
     const auto zeroPadding =
         (base64BitsPerCharacter - inputBitsCount % base64BitsPerCharacter) % base64BitsPerCharacter;
-    const auto characterPadding = zeroPadding / size_t{2};
+    const auto characterPadding = zeroPadding / 2uz;
 
     auto encoded = std::vector<uint8_t>{};
-    auto bitOffset = size_t{0};
+    auto bitOffset = 0uz;
 
     while (bitOffset < inputBitsCount)
     {
@@ -71,7 +71,7 @@ std::vector<uint8_t> encode64(const std::vector<uint8_t>& bytes)
         bitOffset += bitsToRead;
     }
 
-    for (auto index = size_t{0}; index < characterPadding; ++index)
+    for (auto index = 0uz; index < characterPadding; ++index)
     {
         encoded.push_back(base64PaddingCharacter);
     }
@@ -82,13 +82,13 @@ std::vector<uint8_t> encode64(const std::vector<uint8_t>& bytes)
 std::vector<uint8_t> decode64(const std::vector<uint8_t>& bytes)
 {
     auto decoded = std::vector<uint8_t>{};
-    auto bitsCount = size_t{0};
+    auto bitsCount = 0uz;
 
     const auto characterPadding = std::count(bytes.cbegin(), bytes.cend(), base64PaddingCharacter);
-    const auto zeroPadding = size_t{2} * characterPadding;
+    const auto zeroPadding = 2uz * characterPadding;
     const auto actualSize = bytes.size() - characterPadding;
 
-    for (auto index = size_t{0}; index < actualSize; ++index)
+    for (auto index = 0uz; index < actualSize; ++index)
     {
         const auto code = static_cast<int>(bytes[index]);
 
@@ -101,7 +101,7 @@ std::vector<uint8_t> decode64(const std::vector<uint8_t>& bytes)
             THROW(std::invalid_argument, "invalid character '", code, "' in base64 encoding");
         }
 
-        const auto lastIteration = (index + size_t{1} == actualSize);
+        const auto lastIteration = (index + 1uz == actualSize);
         const auto bitsToTake = base64BitsPerCharacter - zeroPadding * lastIteration;
         offset >>= zeroPadding * lastIteration;
 
