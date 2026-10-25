@@ -91,7 +91,7 @@ size_t getMostSignificantBits(const std::span<const uint8_t> input, const size_t
     const auto trailingBitsCount = inputEndBitOffset % bitsPerByte;
 
     // Bits preceding the start offset are either shifted out or masked away at the end.
-    auto output = size_t{0};
+    auto output = 0uz;
 
     for (auto byteIndex = inputStartBitOffset / bitsPerByte; byteIndex < endByteIndex; ++byteIndex)
     {
