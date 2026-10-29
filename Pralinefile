@@ -1,15 +1,15 @@
 organization: dansandu
 artifact: ballotin
-version: 1.0.0.SNAPSHOT
+version: 1.0.0
 dependencies:
 - organization: dansandu
   artifact: journey
-  version: 1.0.0.SNAPSHOT
+  version: 1.0.0
 - organization: dansandu
   artifact: radiance
-  version: 1.0.0.SNAPSHOT
+  version: 1.0.0
   scope: test
 - organization: dansandu
   artifact: service_runner
-  version: 1.0.0.SNAPSHOT
+  version: 1.0.0
   scope: test
